@@ -1,7 +1,7 @@
 import type { CompleteLearningSpace, Grade, LearningSpaceInput, Quiz, StudyPlan } from '../types'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
-const CLIENT_ID_KEY = 'liank_client_id'
+const CLIENT_ID_KEY = 'constellink_client_id'
 
 /** 浏览器首次访问时创建，并在后续请求中保持同一个 client_id。 */
 export function getClientId(): string {

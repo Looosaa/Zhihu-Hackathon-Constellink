@@ -10,7 +10,7 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 class Settings(BaseSettings):
     app_env: str = "development"
-    app_name: str = "Zhijing API"
+    app_name: str = "Constellink API"
     frontend_origin: str = "http://localhost:5173"
     render_external_url: str = ""
 

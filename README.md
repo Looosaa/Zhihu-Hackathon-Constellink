@@ -1,6 +1,6 @@
-# 知径（Zhihu Hackathon）
+# 知链 Constellink（Zhihu Hackathon）
 
-知径是一套基于知乎知识内容的 AI 学习辅助应用。前端使用 React + TypeScript，后端使用 FastAPI，并已接入 Supabase、OpenAI 兼容大模型接口和知乎开放平台内容接口。
+知链 Constellink 是一套基于知乎知识内容的 AI 学习辅助应用。前端使用 React + TypeScript，后端使用 FastAPI，并已接入 Supabase、OpenAI 兼容大模型接口和知乎开放平台内容接口。
 
 ## 项目结构
 

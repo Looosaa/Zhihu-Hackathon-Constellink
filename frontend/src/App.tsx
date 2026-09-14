@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
-import { Bell, BookOpen, ChevronRight, CircleHelp, Clock3, LayoutGrid, LoaderCircle, MoreHorizontal, Play, Plus, Search, Sparkles, X } from 'lucide-react'
+import { Bell, BookOpen, ChevronRight, Clock3, Link2, LoaderCircle, MoreHorizontal, Play, Plus, Search, Sparkles, X } from 'lucide-react'
 import { analyzeLearningSpace, createLearningSpace, createQuiz, createStudyPlan, getLearningSpace, submitQuizAttempt } from './api/client'
+import { KnowledgeGraph } from './components/KnowledgeGraph'
 import { ZhihuAccount } from './components/ZhihuAccount'
 import type { CompleteLearningSpace, Grade, LearningGoal, LearnerLevel, Quiz } from './types'
 import './App.css'
@@ -9,10 +10,21 @@ type RequestState = 'idle' | 'creating' | 'analyzing' | 'loading' | 'success' | 
 type Tab = '图谱' | '列表' | '详细介绍' | '来源'
 
 const fallbackNodes = [
-  { id: '01', label: '为什么要建立知识图谱？', description: '从零散信息到结构化理解，先找到知识之间的关系。', category: '示例' },
-  { id: '02', label: '从知乎观点中提炼共识', description: '识别不同回答中的共同观点、事实和关键依据。', category: '示例' },
-  { id: '03', label: '理解分歧与适用场景', description: '同一个问题为什么有不同答案？如何判断适合自己的路径。', category: '示例' },
-  { id: '04', label: '生成你的学习路径', description: '把概念、前置知识和实践任务组织成可执行计划。', category: '示例' },
+  { id: 'community', label: '知乎知识社区', description: '聚合真实问题、专业回答与多元经验。', category: '知识源' },
+  { id: 'extract', label: 'AI 观点提炼', description: '识别共识、争议、论据和适用边界。', category: '理解' },
+  { id: 'concept', label: '核心概念拆解', description: '将复杂主题拆成可掌握的知识单元。', category: '理解' },
+  { id: 'relation', label: '知识关系建模', description: '连接前置、组成、支持与矛盾关系。', category: '连接' },
+  { id: 'route', label: '个性学习路径', description: '结合目标和时间生成七天行动方案。', category: '路径' },
+  { id: 'coach', label: '互动辅导测验', description: '通过问答、反馈和测验巩固理解。', category: '实践' },
+]
+
+const fallbackEdges = [
+  { source: 'community', target: 'extract', type: 'SUPPORTS' },
+  { source: 'community', target: 'concept', type: 'SUPPORTS' },
+  { source: 'extract', target: 'relation', type: 'PART_OF' },
+  { source: 'concept', target: 'relation', type: 'PREREQUISITE_OF' },
+  { source: 'relation', target: 'route', type: 'LEARN_AFTER' },
+  { source: 'route', target: 'coach', type: 'APPLIES_TO' },
 ]
 
 function App() {
@@ -33,6 +45,7 @@ function App() {
   const [feedback, setFeedback] = useState<Grade | null>(null)
 
   const graphNodes = useMemo(() => result?.analysis?.concepts.slice(0, 8) ?? fallbackNodes, [result])
+  const graphEdges = useMemo(() => result?.analysis?.edges ?? fallbackEdges, [result])
   const busy = ['creating', 'analyzing', 'loading'].includes(state)
 
   const submitSpace = async (event: React.FormEvent) => {
@@ -120,16 +133,7 @@ function App() {
           </div>
 
           {tab === '图谱' && <>
-            <div className="graph-toolbar"><div><b>知识关系</b><span>{result ? '来自真实 AI 分析结果' : '创建学习空间后展示真实知识节点'}</span></div><button className="toolbar-button"><LayoutGrid size={15} /> 自动布局</button></div>
-            <div className="graph-canvas">{graphNodes.map((node, index) => <div className="node-wrap" key={node.id}>
-              <article className={`learning-node ${result ? 'active' : index < 2 ? 'done' : index === 2 ? 'active' : 'locked'}`}>
-                <div className="node-top"><span className="node-number">{String(index + 1).padStart(2, '0')}</span><span className="node-status active">{node.category}</span></div>
-                <h3>{node.label}</h3><p>{node.description}</p>
-                <button className="node-action" onClick={() => setTab('详细介绍')}>查看分析 <ChevronRight size={14} /></button>
-              </article>
-              {index < graphNodes.length - 1 && <div className="connector"><ChevronRight size={18} /></div>}
-            </div>)}</div>
-            <div className="graph-help"><CircleHelp size={15} /> 当前版本按 AI 返回顺序展示；知识关系详见分析结果</div>
+            <KnowledgeGraph nodes={graphNodes} edges={graphEdges} isLive={Boolean(result)} onOpen={() => setTab('详细介绍')} />
           </>}
 
           {tab === '列表' && <div className="result-panel"><h2>知识点列表</h2>
@@ -164,13 +168,13 @@ function App() {
         </aside>
       </div>
     </main>
-    <footer>liank · 让知识学习更有路径</footer>
+    <footer>知链 Constellink · 让知识彼此连接，让学习自然发生</footer>
     {composer && <Composer topic={topic} setTopic={setTopic} level={level} setLevel={setLevel} goal={goal} setGoal={setGoal} minutes={minutes} setMinutes={setMinutes} state={state} error={error} busy={busy} onSubmit={submitSpace} onClose={() => !busy && setComposer(false)} />}
   </div>
 }
 
 function Header({ onCreate }: { onCreate: () => void }) {
-  return <header className="header"><div className="header-inner"><div className="brand"><span className="brand-symbol"><Sparkles size={17} /></span><b>liank</b></div><nav><a className="active">图谱</a><a>刷知识</a><a>AI 助手</a></nav><div className="header-search"><Search size={16} /><input placeholder="搜索图谱、笔记、知识点…" /></div><div className="header-actions"><button><Clock3 size={17} /><span>复习</span></button><button className="notice"><Bell size={17} /><i>2</i></button><button className="create" onClick={onCreate}><Plus size={16} /> 创作</button><ZhihuAccount /></div></div></header>
+  return <header className="header"><div className="header-inner"><div className="brand" aria-label="知链 Constellink"><span className="brand-symbol"><Link2 size={18} /></span><span className="brand-name"><b>知链</b><small>Constellink</small></span></div><nav><a className="active">图谱</a><a>刷知识</a><a>AI 助手</a></nav><div className="header-search"><Search size={16} /><input placeholder="搜索图谱、笔记、知识点…" /></div><div className="header-actions"><button><Clock3 size={17} /><span>复习</span></button><button className="notice"><Bell size={17} /><i>2</i></button><button className="create" onClick={onCreate}><Plus size={16} /> 创作</button><ZhihuAccount /></div></div></header>
 }
 
 function EmptyResult() {
