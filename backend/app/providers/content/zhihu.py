@@ -53,34 +53,71 @@ class ZhihuContentProvider:
                 item.get("id")
                 or item.get("content_id")
                 or item.get("object_id")
+                or item.get("ContentID")
                 or index
             )
-            title = item.get("title") or item.get("question_title") or "知乎内容"
+            title = (
+                item.get("title")
+                or item.get("question_title")
+                or item.get("Title")
+                or "知乎内容"
+            )
             excerpt = (
                 item.get("excerpt")
                 or item.get("content")
                 or item.get("description")
                 or item.get("summary")
+                or item.get("ContentText")
                 or ""
             )
-            url = item.get("url") or item.get("source_url") or item.get("link")
+            url = (
+                item.get("url")
+                or item.get("source_url")
+                or item.get("link")
+                or item.get("Url")
+            )
             if not url or not excerpt:
                 continue
+            author_name = (
+                author.get("name")
+                or author.get("headline")
+                or item.get("AuthorName")
+                or "知乎用户"
+            )
+            author_badge = (
+                author.get("badge")
+                or author.get("headline")
+                or item.get("AuthorBadgeText")
+                or item.get("AuthorBadge")
+                or item.get("AuthorSignature")
+            )
             normalized.append(
                 RetrievedSource(
                     external_id=external_id,
                     provider=SourceProvider.ZHIHU,
-                    content_type=str(item.get("type") or "answer"),
+                    content_type=str(
+                        item.get("type") or item.get("ContentType") or "answer"
+                    ).lower(),
                     title=str(title),
-                    author_name=str(author.get("name") or author.get("headline") or "知乎用户"),
-                    author_badge=author.get("badge") or author.get("headline"),
+                    author_name=str(author_name),
+                    author_badge=str(author_badge) if author_badge else None,
                     source_url=url,
                     excerpt=str(excerpt),
                     engagement={
-                        "upvotes": item.get("voteup_count") or item.get("upvotes") or 0,
-                        "comments": item.get("comment_count") or item.get("comments") or 0,
+                        "upvotes": item.get("voteup_count")
+                        or item.get("upvotes")
+                        or item.get("VoteUpCount")
+                        or 0,
+                        "comments": item.get("comment_count")
+                        or item.get("comments")
+                        or item.get("CommentCount")
+                        or 0,
                     },
-                    metadata={"raw_type": item.get("type")},
+                    metadata={
+                        "raw_type": item.get("type") or item.get("ContentType"),
+                        "authority_level": item.get("AuthorityLevel"),
+                        "ranking_score": item.get("RankingScore"),
+                    },
                 )
             )
         return normalized
@@ -91,7 +128,7 @@ class ZhihuContentProvider:
             return payload
         if not isinstance(payload, dict):
             return []
-        for key in ("data", "results", "items", "list"):
+        for key in ("data", "Data", "results", "items", "Items", "list"):
             value = payload.get(key)
             if isinstance(value, list):
                 return value
@@ -100,4 +137,3 @@ class ZhihuContentProvider:
                 if nested:
                     return nested
         return []
-
