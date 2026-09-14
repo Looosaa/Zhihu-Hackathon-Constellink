@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Bell, BookOpen, ChevronRight, Clock3, Link2, LoaderCircle, MoreHorizontal, Play, Plus, Search, Sparkles, X } from 'lucide-react'
+import { Bell, BookOpen, ChevronRight, Clock3, LoaderCircle, MoreHorizontal, Play, Plus, Search, Sparkles, X } from 'lucide-react'
 import { analyzeLearningSpace, createLearningSpace, createQuiz, createStudyPlan, submitQuizAttempt, waitForLearningSpace } from './api/client'
 import { KnowledgeStarMap } from './components/KnowledgeStarMap'
 import { ZhihuAccount } from './components/ZhihuAccount'
@@ -174,7 +174,7 @@ function App() {
 }
 
 function Header({ onCreate }: { onCreate: () => void }) {
-  return <header className="header"><div className="header-inner"><div className="brand" aria-label="知链 Constellink"><span className="brand-symbol"><Link2 size={18} /></span><span className="brand-name"><b>知链</b><small>Constellink</small></span></div><nav><a className="active">图谱</a><a>刷知识</a><a>AI 助手</a></nav><div className="header-search"><Search size={16} /><input placeholder="搜索图谱、笔记、知识点…" /></div><div className="header-actions"><button><Clock3 size={17} /><span>复习</span></button><button className="notice"><Bell size={17} /><i>2</i></button><button className="create" onClick={onCreate}><Plus size={16} /> 创作</button><ZhihuAccount /></div></div></header>
+  return <header className="header"><div className="header-inner"><div className="brand" aria-label="知链 Constellink"><span className="brand-symbol"><img src="/constellink-icon-v1.png" alt="" width={36} height={36} /></span><span className="brand-name"><b>知链</b><small>Constellink</small></span></div><nav><a className="active">图谱</a><a>刷知识</a><a>AI 助手</a></nav><div className="header-search"><Search size={16} /><input placeholder="搜索图谱、笔记、知识点…" /></div><div className="header-actions"><button><Clock3 size={17} /><span>复习</span></button><button className="notice"><Bell size={17} /><i>2</i></button><button className="create" onClick={onCreate}><Plus size={16} /> 创作</button><ZhihuAccount /></div></div></header>
 }
 
 function EmptyResult() {

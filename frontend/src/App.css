@@ -13,9 +13,8 @@
 @media(max-width:600px){.composer-modal{padding:24px 18px}.composer-grid{grid-template-columns:1fr}}
 
 /* Constellink brand */
-.brand-symbol{position:relative;overflow:hidden;background:linear-gradient(145deg,#f48b42,#ec6f2f);box-shadow:0 7px 18px rgba(226,113,43,.2)}
-.brand-symbol:before,.brand-symbol:after{content:'';position:absolute;width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.78)}
-.brand-symbol:before{left:5px;top:6px}.brand-symbol:after{right:5px;bottom:6px}.brand-symbol svg{position:relative;z-index:1}
+.brand-symbol{width:36px;height:36px;flex-shrink:0;overflow:hidden;background:#10181b;box-shadow:0 3px 10px rgba(16,24,27,.12)}
+.brand-symbol img{display:block;width:100%;height:100%;object-fit:contain}
 .brand-name{display:flex;align-items:baseline;gap:7px;white-space:nowrap}.brand-name b{font-size:18px;letter-spacing:.02em}.brand-name small{color:#9a9e99;font-size:10px;font-weight:600;letter-spacing:.06em}
 
 /* AI-driven project block diagram */
