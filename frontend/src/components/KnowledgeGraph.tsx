@@ -30,7 +30,7 @@ const constellationPositions = [
   { x: 52, y: 66 },
   { x: 76, y: 37 },
   { x: 76, y: 3 },
-  { x: 76, y: 73 },
+  { x: 76, y: 68 },
 ]
 
 const flowPositions = [
@@ -43,6 +43,15 @@ const flowPositions = [
   { x: 51, y: 65 },
   { x: 75, y: 65 },
 ]
+
+const edgeTypeLabels: Record<string, string> = {
+  PREREQUISITE_OF: '前置',
+  PART_OF: '组成',
+  LEARN_AFTER: '后续',
+  SUPPORTS: '支持',
+  CONTRADICTS: '分歧',
+  APPLIES_TO: '应用',
+}
 
 export function KnowledgeGraph({ nodes, edges, isLive, onOpen }: KnowledgeGraphProps) {
   const [layout, setLayout] = useState<'constellation' | 'flow'>('constellation')
@@ -61,6 +70,7 @@ export function KnowledgeGraph({ nodes, edges, isLive, onOpen }: KnowledgeGraphP
   }, [edges, visibleNodes])
 
   const positionById = new Map(visibleNodes.map((node, index) => [node.id, positions[index]]))
+  const labelById = new Map(visibleNodes.map(node => [node.id, node.label]))
 
   return <section className="knowledge-map" aria-label="知识关系方块图">
     <header className="knowledge-map-toolbar">
@@ -96,7 +106,9 @@ export function KnowledgeGraph({ nodes, edges, isLive, onOpen }: KnowledgeGraphP
           const path = `M ${x1} ${y1} C ${x1 + bend} ${y1}, ${x2 - bend} ${y2}, ${x2} ${y2}`
           return <g key={`${edge.source}-${edge.target}-${index}`}>
             <path className={`map-edge edge-${edge.type.toLowerCase()}`} d={path} markerEnd="url(#constellink-arrow)" />
-            {edge.label && <text x={(x1 + x2) / 2} y={(y1 + y2) / 2 - 7}>{edge.label}</text>}
+            {edge.label && <text x={(x1 + x2) / 2} y={(y1 + y2) / 2 - 7}>
+              {edge.label.length > 10 ? `${edge.label.slice(0, 10)}…` : edge.label}
+            </text>}
           </g>
         })}
       </svg>
@@ -117,6 +129,15 @@ export function KnowledgeGraph({ nodes, edges, isLive, onOpen }: KnowledgeGraphP
           <button onClick={onOpen}>查看观点 <ArrowUpRight size={13} /></button>
         </article>
       })}
+    </div>
+
+    <div className="compact-relations" aria-label="知识关系摘要">
+      {visibleEdges.slice(0, 6).map((edge, index) => <span key={`${edge.source}-${edge.target}-compact-${index}`}>
+        <b>{labelById.get(edge.source)}</b>
+        <i>→</i>
+        <b>{labelById.get(edge.target)}</b>
+        <em>{edge.label || edgeTypeLabels[edge.type] || '关联'}</em>
+      </span>)}
     </div>
 
     <div className="knowledge-map-legend">
