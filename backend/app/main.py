@@ -1,7 +1,9 @@
 import logging
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes.health import router as health_router
 from app.api.routes.quizzes import router as quizzes_router
@@ -20,7 +22,9 @@ class OAuthAccessLogFilter(logging.Filter):
         if isinstance(record.args, tuple):
             record.args = tuple(
                 value.split("?", 1)[0] + "?[redacted]"
-                if isinstance(value, str) and "/api/auth/zhihu/callback?" in value else value
+                if isinstance(value, str) and (
+                    "/api/auth/zhihu/callback?" in value or "/auth/callback?" in value
+                ) else value
                 for value in record.args
             )
         return True
@@ -60,6 +64,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(auth_router)
     app.include_router(spaces_router)
     app.include_router(quizzes_router)
+    # The Docker/Render build places the Vite bundle here. Mounting it last keeps
+    # all API and documentation routes authoritative while enabling SPA fallback.
+    frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+    if (frontend_dist / "index.html").is_file():
+        app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="frontend")
     return app
 
 

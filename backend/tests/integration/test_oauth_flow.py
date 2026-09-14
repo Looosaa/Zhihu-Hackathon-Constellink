@@ -15,8 +15,9 @@ from app.services.oauth_service import OAuthService
 
 def settings():
     return Settings(_env_file=None, zhihu_oauth_app_id="618", zhihu_oauth_app_key="test-app-key",
-                    zhihu_access_secret="test-platform-secret", oauth_cookie_secure=False,
-                    zhihu_oauth_redirect_uri="http://localhost:8000/api/auth/zhihu/callback")
+                    zhihu_access_secret="test-platform-secret", app_env="production",
+                    frontend_origin="https://app.example", oauth_cookie_secure=True,
+                    zhihu_oauth_redirect_uri="https://app.example/auth/callback")
 
 
 def make_provider(config, calls):
@@ -47,11 +48,11 @@ def test_complete_flow_profile_paging_logout_and_no_token_exposure():
     config, calls = settings(), []
     app = create_app(config)
     app.state.oauth.provider = make_provider(config, calls)
-    with TestClient(app, base_url="http://localhost:8000") as client:
+    with TestClient(app, base_url="https://app.example") as client:
         assert client.get("/api/auth/session").json()["user"] is None
         started = client.get("/api/auth/zhihu/login", follow_redirects=False)
         state = parse_qs(urlsplit(started.headers["location"]).query)["state"][0]
-        callback = client.get("/api/auth/zhihu/callback", params={
+        callback = client.get("/auth/callback", params={
             "state": state, "authorization_code": "authorized-code"}, follow_redirects=False)
         assert callback.status_code == 303
         assert "HttpOnly" in callback.headers["set-cookie"]
@@ -69,7 +70,7 @@ def test_complete_flow_profile_paging_logout_and_no_token_exposure():
         assert client.get("/api/me/contents?limit=51").status_code == 422
         assert client.get("/api/me/contents?offset=9999999999999999999").status_code == 422
         assert client.post("/api/auth/logout", headers={"Origin": "https://evil.example"}).status_code == 403
-        assert client.post("/api/auth/logout", headers={"Origin": "http://localhost:5173"}).status_code == 200
+        assert client.post("/api/auth/logout", headers={"Origin": "https://app.example"}).status_code == 200
         assert client.get("/api/me/followees").status_code == 401
 
 
@@ -87,7 +88,7 @@ def test_state_required_bound_to_browser_and_consumed_once():
         asyncio.run(service.complete("authorized-code", state, browser))
 
 
-def test_missing_state_compatibility_is_explicit_and_development_only():
+def test_missing_state_compatibility_is_explicit_and_browser_bound():
     config, calls = settings(), []
     config.zhihu_oauth_allow_missing_state = True
     service = OAuthService(config, make_provider(config, calls))
@@ -95,10 +96,8 @@ def test_missing_state_compatibility_is_explicit_and_development_only():
     asyncio.run(service.complete("authorized-code", None, browser))
     assert len(calls) == 2
 
-    config.app_env = "production"
-    config.zhihu_oauth_redirect_uri = "https://example.com/api/auth/zhihu/callback"
-    config.oauth_cookie_secure = True
-    service = OAuthService(config, make_provider(config, []))
+    disabled = settings()
+    service = OAuthService(disabled, make_provider(disabled, []))
     _, browser = service.begin()
     with pytest.raises(LoginRequired):
         asyncio.run(service.complete("authorized-code", None, browser))
@@ -137,7 +136,7 @@ def test_invalid_profile_cannot_create_session():
 
 def test_callback_access_log_redacts_code_and_state():
     record = logging.LogRecord("uvicorn.access", logging.INFO, "", 0, '%s %s %s %s %s',
-        ("127.0.0.1", "GET", "/api/auth/zhihu/callback?authorization_code=secret&state=secret", "1.1", 303), None)
+        ("127.0.0.1", "GET", "/auth/callback?authorization_code=secret&state=secret", "1.1", 303), None)
     OAuthAccessLogFilter().filter(record)
     assert "secret" not in record.getMessage()
 
@@ -145,5 +144,15 @@ def test_callback_access_log_redacts_code_and_state():
 def test_unconfigured_login_is_disabled():
     assert not OAuthService(Settings(_env_file=None)).configured
     config = settings()
-    config.app_env = "production"
+    config.zhihu_oauth_redirect_uri = "http://127.0.0.1:8000/api/auth/zhihu/callback"
+    config.oauth_cookie_secure = False
     assert not OAuthService(config).configured
+
+
+def test_render_public_url_configures_same_origin_callback():
+    config = Settings(_env_file=None, app_env="production",
+        render_external_url="https://zhijing-demo.onrender.com",
+        zhihu_oauth_app_id="618", zhihu_oauth_app_key="test-app-key")
+    assert config.frontend_origin == "https://zhijing-demo.onrender.com"
+    assert config.zhihu_oauth_redirect_uri == "https://zhijing-demo.onrender.com/auth/callback"
+    assert OAuthService(config).configured

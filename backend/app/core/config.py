@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -11,6 +12,7 @@ class Settings(BaseSettings):
     app_env: str = "development"
     app_name: str = "Zhijing API"
     frontend_origin: str = "http://localhost:5173"
+    render_external_url: str = ""
 
     repository_backend: str = "memory"
     supabase_url: str = ""
@@ -49,6 +51,18 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_selected_backends(self) -> "Settings":
+        # Render assigns the public URL only after the service is created. Derive
+        # the same-origin frontend and OAuth callback there so no deploy-time URL
+        # needs to be hard-coded into the repository.
+        if self.app_env == "production" and self.render_external_url:
+            render_url = self.render_external_url.rstrip("/")
+            parsed = urlsplit(render_url)
+            if parsed.scheme != "https" or not parsed.hostname or parsed.username:
+                raise ValueError("RENDER_EXTERNAL_URL must be a public HTTPS URL")
+            if self.frontend_origin in {"", "http://localhost:5173", "http://127.0.0.1:5173"}:
+                self.frontend_origin = render_url
+            if not self.zhihu_oauth_redirect_uri:
+                self.zhihu_oauth_redirect_uri = f"{render_url}/auth/callback"
         if self.repository_backend not in {"memory", "supabase"}:
             raise ValueError("REPOSITORY_BACKEND must be memory or supabase")
         if self.llm_backend not in {"fake", "openai_compatible"}:

@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: zhijing-zhihu-hackathon
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: Zhijing API
+      - key: REPOSITORY_BACKEND
+        value: supabase
+      - key: LLM_BACKEND
+        value: openai_compatible
+      - key: CONTENT_PROVIDER
+        value: zhihu
+      - key: ZHIHU_OAUTH_APP_ID
+        value: "618"
+      - key: ZHIHU_OAUTH_ALLOW_MISSING_STATE
+        value: "true"
+      - key: OAUTH_COOKIE_SECURE
+        value: "true"
+      - key: LLM_JSON_MODE
+        value: "false"
+      - key: PROMPT_VERSION
+        value: v1
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: LLM_BASE_URL
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        sync: false
+      - key: ZHIHU_ACCESS_SECRET
+        sync: false
+      - key: ZHIHU_OAUTH_APP_KEY
+        sync: false

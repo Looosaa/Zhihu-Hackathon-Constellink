@@ -24,7 +24,13 @@ async def session(request: Request):
         user = service.require(request.cookies.get(SESSION_COOKIE))["profile"]
     except LoginRequired:
         user = None
-    return private(JSONResponse({"user": user, "login_available": service.configured}))
+    return private(JSONResponse({
+        "user": user,
+        "login_available": service.configured,
+        "oauth_demo_mode": bool(
+            service.configured and service.settings.zhihu_oauth_allow_missing_state
+        ),
+    }))
 
 
 @router.get("/api/auth/zhihu/login")
@@ -35,10 +41,11 @@ async def login(request: Request):
     url, browser = service.begin()
     response = private(RedirectResponse(url, status_code=302))
     response.set_cookie(STATE_COOKIE, browser, max_age=600, httponly=True,
-                        secure=service.settings.oauth_cookie_secure, samesite="lax", path="/api/auth/zhihu")
+                        secure=service.settings.oauth_cookie_secure, samesite="lax", path="/")
     return response
 
 
+@router.get("/auth/callback", include_in_schema=False)
 @router.get("/api/auth/zhihu/callback")
 async def callback(request: Request, authorization_code: str | None = None,
                    code: str | None = None, state: str | None = None, error: str | None = None):
@@ -57,7 +64,7 @@ async def callback(request: Request, authorization_code: str | None = None,
     except OAuthError:
         # Never include upstream errors, codes or tokens in a redirect.
         response = private(RedirectResponse(target + "/?login_error=authorization_failed", status_code=303))
-    response.delete_cookie(STATE_COOKIE, path="/api/auth/zhihu")
+    response.delete_cookie(STATE_COOKIE, path="/")
     return response
 
 
@@ -71,7 +78,7 @@ async def logout(request: Request):
     service.logout(request.cookies.get(SESSION_COOKIE))
     response = private(JSONResponse({"ok": True}))
     response.delete_cookie(SESSION_COOKIE, path="/api")
-    response.delete_cookie(STATE_COOKIE, path="/api/auth/zhihu")
+    response.delete_cookie(STATE_COOKIE, path="/")
     return response
 
 

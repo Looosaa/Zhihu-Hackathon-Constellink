@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronDown, LogOut, UserRound, X } from 'lucide-react'
 import './ZhihuAccount.css'
+import './ZhihuAccountDemo.css'
 
 type User = {
   id: string
@@ -32,6 +33,7 @@ type Page = {
 export function ZhihuAccount() {
   const [user, setUser] = useState<User | null>(null)
   const [available, setAvailable] = useState(false)
+  const [demoMode, setDemoMode] = useState(false)
   const [loading, setLoading] = useState(true)
   const [open, setOpen] = useState(false)
   const [error, setError] = useState(() => new URLSearchParams(window.location.search).has('login_error')
@@ -52,11 +54,16 @@ export function ZhihuAccount() {
     fetch('/api/auth/session', { credentials: 'include', signal: controller.signal })
       .then(async response => {
         if (!response.ok) throw new Error('无法读取登录状态')
-        return response.json() as Promise<{ user: User | null; login_available: boolean }>
+        return response.json() as Promise<{
+          user: User | null
+          login_available: boolean
+          oauth_demo_mode: boolean
+        }>
       })
       .then(data => {
         setUser(data.user)
         setAvailable(data.login_available)
+        setDemoMode(data.oauth_demo_mode)
         setOpen(shouldOpen && Boolean(data.user))
       })
       .catch(reason => {
@@ -108,6 +115,7 @@ export function ZhihuAccount() {
     {error && <span role="alert" className="zh-account-error">{error}</span>}
     {open && user && <AccountDialog
       user={user}
+      demoMode={demoMode}
       onClose={close}
       onLogout={logout}
       onExpired={() => {
@@ -126,8 +134,9 @@ function Avatar({ src, name }: { src?: string; name: string }) {
     : <span className="zh-account-avatar zh-account-initial">{name.slice(0, 1)}</span>
 }
 
-function AccountDialog({ user, onClose, onLogout, onExpired }: {
+function AccountDialog({ user, demoMode, onClose, onLogout, onExpired }: {
   user: User
+  demoMode: boolean
   onClose: () => void
   onLogout: () => void
   onExpired: () => void
@@ -146,6 +155,9 @@ function AccountDialog({ user, onClose, onLogout, onExpired }: {
       <Avatar src={user.avatar_url} name={user.name} />
       <div><h3>{user.name}</h3><p>{user.headline || '这位知友还没有填写一句话介绍。'}</p></div>
     </section>
+    {demoMode && <p className="zh-account-demo-notice">
+      黑客松演示登录：知乎当前回调可能不返回 state，暂不作为生产级登录使用。
+    </p>}
     {user.description && <p className="zh-account-description">{user.description}</p>}
     <nav className="zh-account-tabs" aria-label="用户内容分类">
       <button aria-pressed={tab === 'followees'} onClick={() => setTab('followees')}>关注的人</button>

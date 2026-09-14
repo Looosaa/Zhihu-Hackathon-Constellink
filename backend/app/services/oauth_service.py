@@ -18,12 +18,11 @@ class OAuthService:
         uri = urlsplit(self.settings.zhihu_oauth_redirect_uri)
         secure = self.settings.oauth_cookie_secure
         return bool(self.settings.zhihu_oauth_app_id and self.settings.zhihu_oauth_app_key
-                    and uri.netloc and uri.path == "/api/auth/zhihu/callback"
+                    and uri.netloc and uri.path in {"/auth/callback", "/api/auth/zhihu/callback"}
                     and not uri.query and not uri.fragment and not uri.username
-                    and (uri.scheme == "https" or
-                         (uri.scheme == "http" and uri.hostname in {"localhost", "127.0.0.1"}
-                          and self.settings.app_env == "development" and not secure))
-                    and (secure or self.settings.app_env == "development"))
+                    and uri.scheme == "https"
+                    and uri.hostname not in {"localhost", "127.0.0.1"}
+                    and secure)
 
     def _prune(self):
         now = time.time()
@@ -49,7 +48,6 @@ class OAuthService:
         self._prune()
         pending_state = state
         if (not pending_state and browser
-                and self.settings.app_env == "development"
                 and self.settings.zhihu_oauth_allow_missing_state):
             matches = [key for key, value in self.pending.items()
                        if secrets.compare_digest(value["browser"], browser)]

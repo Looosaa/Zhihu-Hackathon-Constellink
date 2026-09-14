@@ -1,0 +1,11 @@
+.git
+.codex
+.env
+*.env
+!.env.example
+**/.venv
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+frontend/dist
+backend/data/*.json
