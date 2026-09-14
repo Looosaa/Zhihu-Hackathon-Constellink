@@ -109,6 +109,11 @@ class OpenAICompatibleLLM:
         }
         if self.json_mode:
             payload["response_format"] = {"type": "json_object"}
+        if self._model_name.startswith("deepseek-v4"):
+            # DeepSeek V4 enables high-effort thinking by default. These tasks
+            # need concise schema-compliant JSON, so non-thinking mode is both
+            # faster and less likely to spend the token budget before content.
+            payload["thinking"] = {"type": "disabled"}
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
