@@ -1,0 +1,15 @@
+请针对当前学习主题生成一道检验真实理解的开放题。
+
+主题：{{topic}}
+指定概念：{{concept_id}}
+分析结果：{{analysis_json}}
+
+规则：
+1. 优先要求解释、比较、举例或应用，不出纯记忆题。
+2. reference_answer 是内部评分参考，不写成唯一标准措辞。
+3. rubric 总分必须恰好为 100。
+4. source_keys 和 concept_id 只能引用分析结果中已有项目。
+5. 输出合法 JSON，不输出额外解释。
+
+JSON 字段必须包含 concept_id、question、reference_answer、rubric、source_keys。
+

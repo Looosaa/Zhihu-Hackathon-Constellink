@@ -1,0 +1,126 @@
+{
+  "demo_topic": "零基础学习机器学习，需要先系统学习数学吗？",
+  "notice": "以下内容为架构联调所用的合成演示数据，上线或参赛前请替换为有权使用且链接可追溯的真实来源。",
+  "sources": [
+    {
+      "external_id": "demo-001",
+      "provider": "demo",
+      "content_type": "answer",
+      "title": "应用导向的机器学习入门顺序",
+      "author_name": "演示答主 A",
+      "author_badge": "应用开发者（演示身份）",
+      "source_url": "https://example.com/zhijing-demo/s1",
+      "excerpt": "如果目标是在较短时间完成一个机器学习应用，不必等所有数学课程学完才开始。可以先掌握 Python 和基本数据处理，跟着一个小型分类项目走完数据准备、训练、验证和复盘，再针对损失函数、概率和矩阵运算中真正不理解的部分补课。实践不是逃避理论，而是帮助初学者知道理论解决什么问题。",
+      "engagement": {"upvotes": 168, "comments": 22},
+      "metadata": {"synthetic": true, "stance": "practice_first"}
+    },
+    {
+      "external_id": "demo-002",
+      "provider": "demo",
+      "content_type": "answer",
+      "title": "研究方向应先打牢数学基础",
+      "author_name": "演示答主 B",
+      "author_badge": "算法研究者（演示身份）",
+      "source_url": "https://example.com/zhijing-demo/s2",
+      "excerpt": "如果学习目标是阅读论文、推导模型或从事算法研究，线性代数、概率统计和微积分不宜长期绕开。至少要理解向量矩阵、条件概率、梯度和常见分布，再学习优化与模型训练。可以同时做小实验，但实验应服务于验证理论，而不是只会调用现成接口。",
+      "engagement": {"upvotes": 143, "comments": 35},
+      "metadata": {"synthetic": true, "stance": "math_first"}
+    },
+    {
+      "external_id": "demo-003",
+      "provider": "demo",
+      "content_type": "article",
+      "title": "交替学习比单一路线更有效",
+      "author_name": "演示答主 C",
+      "author_badge": "机器学习讲师（演示身份）",
+      "source_url": "https://example.com/zhijing-demo/s3",
+      "excerpt": "对大多数初学者，更稳妥的方法是让理论和实践交替出现。先用一两天认识完整流程，然后学习当前步骤所需的最少理论，立即用代码验证。遇到模型效果异常时再学习过拟合、数据泄漏和评估指标。每一轮都要求学习者用自己的话解释并留下可运行结果。",
+      "engagement": {"upvotes": 226, "comments": 41},
+      "metadata": {"synthetic": true, "stance": "alternating"}
+    },
+    {
+      "external_id": "demo-004",
+      "provider": "demo",
+      "content_type": "answer",
+      "title": "先明确目标，再选择学习深度",
+      "author_name": "演示答主 D",
+      "author_badge": "数据科学从业者（演示身份）",
+      "source_url": "https://example.com/zhijing-demo/s4",
+      "excerpt": "是否先学数学没有脱离目标的统一答案。做业务原型需要理解数据划分、指标和基本建模流程；准备算法面试需要更系统地掌握概率、线性代数和优化；研究方向还要具备推导和阅读论文的能力。学习路径首先应询问目标、已有基础和可投入时间。",
+      "engagement": {"upvotes": 194, "comments": 29},
+      "metadata": {"synthetic": true, "stance": "goal_based"}
+    },
+    {
+      "external_id": "demo-005",
+      "provider": "demo",
+      "content_type": "answer",
+      "title": "Python 和数据处理是共同前置能力",
+      "author_name": "演示答主 E",
+      "author_badge": "Python 开发者（演示身份）",
+      "source_url": "https://example.com/zhijing-demo/s5",
+      "excerpt": "无论选择理论优先还是项目优先，基础 Python、数组和表格数据处理都是常见前置能力。初学者需要能读懂函数、循环和数据结构，能使用数组与数据框完成清洗，并能看懂报错。没有必要先掌握复杂的软件工程，但必须能够修改和运行示例代码。",
+      "engagement": {"upvotes": 131, "comments": 18},
+      "metadata": {"synthetic": true, "stance": "prerequisite"}
+    },
+    {
+      "external_id": "demo-006",
+      "provider": "demo",
+      "content_type": "answer",
+      "title": "模型评估比盲目调参更重要",
+      "author_name": "演示答主 F",
+      "author_badge": "数据分析师（演示身份）",
+      "source_url": "https://example.com/zhijing-demo/s6",
+      "excerpt": "很多入门项目只追求把模型跑起来，却忽略训练集、验证集和测试集的区别。真正的学习闭环应包含选择指标、检查数据泄漏、比较基线和解释失败原因。理解评估后，学习者才能判断模型是否真的有效，而不是被训练准确率误导。",
+      "engagement": {"upvotes": 119, "comments": 16},
+      "metadata": {"synthetic": true, "stance": "evaluation"}
+    },
+    {
+      "external_id": "demo-007",
+      "provider": "demo",
+      "content_type": "answer",
+      "title": "小项目应该足够小并能复盘",
+      "author_name": "演示答主 G",
+      "author_badge": "AI 产品工程师（演示身份）",
+      "source_url": "https://example.com/zhijing-demo/s7",
+      "excerpt": "第一个项目应当在几天内完成，而不是选择需要数月的数据和工程系统。可以使用公开小数据集完成分类或回归，记录问题定义、数据处理、基线、模型评估和下一步改进。项目的价值在于形成端到端认识并暴露知识缺口。",
+      "engagement": {"upvotes": 102, "comments": 14},
+      "metadata": {"synthetic": true, "stance": "small_project"}
+    },
+    {
+      "external_id": "demo-008",
+      "provider": "demo",
+      "content_type": "article",
+      "title": "用输出任务检查是否真正理解",
+      "author_name": "演示答主 H",
+      "author_badge": "教育产品设计者（演示身份）",
+      "source_url": "https://example.com/zhijing-demo/s8",
+      "excerpt": "阅读大量教程容易产生已经学会的错觉。每天应安排一个可观察输出，例如画流程图、解释一个概念、修改参数并预测结果，或者比较两个模型的差异。自测问题应要求学习者用自己的例子回答，反馈再决定是否回到前置知识。",
+      "engagement": {"upvotes": 88, "comments": 12},
+      "metadata": {"synthetic": true, "stance": "active_learning"}
+    },
+    {
+      "external_id": "demo-009",
+      "provider": "demo",
+      "content_type": "answer",
+      "title": "数学学习应围绕实际问题展开",
+      "author_name": "演示答主 I",
+      "author_badge": "统计学习者（演示身份）",
+      "source_url": "https://example.com/zhijing-demo/s9",
+      "excerpt": "数学基础当然重要，但初学阶段可以围绕实际问题学习。例如看到特征缩放时理解尺度，看到损失函数时理解优化，看到模型评估时理解抽样和不确定性。这样能避免把大量时间投入到暂时用不到的章节，同时逐步形成严谨的理解。",
+      "engagement": {"upvotes": 96, "comments": 20},
+      "metadata": {"synthetic": true, "stance": "just_in_time_math"}
+    },
+    {
+      "external_id": "demo-010",
+      "provider": "demo",
+      "content_type": "answer",
+      "title": "七天计划只能建立起点",
+      "author_name": "演示答主 J",
+      "author_badge": "学习规划师（演示身份）",
+      "source_url": "https://example.com/zhijing-demo/s10",
+      "excerpt": "七天无法掌握整个机器学习领域，但可以建立正确的起点：理解完整流程、完成一个小项目、知道如何评估结果，并找出后续要补的数学与工程知识。计划应控制每天任务量，最后一天用复盘和讲解检验理解，而不是继续堆新概念。",
+      "engagement": {"upvotes": 76, "comments": 9},
+      "metadata": {"synthetic": true, "stance": "scope"}
+    }
+  ]
+}

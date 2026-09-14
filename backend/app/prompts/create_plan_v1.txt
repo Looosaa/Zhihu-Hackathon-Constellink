@@ -1,0 +1,15 @@
+请根据用户信息、观点分析和知识图谱生成恰好 7 天的学习计划。
+
+用户信息：{{user_profile_json}}
+观点与图谱：{{analysis_json}}
+
+规则：
+1. 每天预计时间不得超过用户每日时间的 110%。
+2. 前置概念必须安排在依赖它的概念之前。
+3. 每天都要有可观察输出和一个自测问题。
+4. concept_ids 和 source_keys 只能引用已有项目。
+5. 第 7 天包含回顾和综合输出。
+6. 输出合法 JSON，不输出额外解释。
+
+JSON 字段必须包含 strategy 和 days；每一天包含 day、title、goal、concept_ids、activities、source_keys、output、self_check、estimated_minutes。
+

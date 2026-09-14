@@ -1,0 +1,38 @@
+{
+  "overview": "实践与数学并不是二选一：应用目标可以先跑通小项目，研究目标则需要更系统的数学基础。",
+  "consensus": [
+    {"id": "consensus_1", "title": "目标决定学习深度", "detail": "应用、面试和研究目标需要不同的理论深度。", "source_keys": ["S1", "S2", "S3"]},
+    {"id": "consensus_2", "title": "尽早建立实践闭环", "detail": "完成小项目能暴露真正的知识缺口。", "source_keys": ["S1", "S4", "S7"]},
+    {"id": "consensus_3", "title": "通过输出检验理解", "detail": "解释、比较和可运行结果比单纯阅读更可靠。", "source_keys": ["S4", "S5", "S8"]}
+  ],
+  "disagreements": [
+    {
+      "id": "disagreement_1",
+      "question": "初学者是否应该先系统学习数学？",
+      "side_a": {"title": "先补数学", "reason": "便于理解原理、推导和模型边界。", "suitable_for": ["算法研究", "准备算法面试"], "source_keys": ["S2", "S6"]},
+      "side_b": {"title": "先做项目", "reason": "快速反馈降低门槛，再按问题补理论。", "suitable_for": ["应用开发", "时间有限"], "source_keys": ["S1", "S4"]},
+      "how_to_choose": "本项目用户以完成应用为目标，因此先建立端到端流程，再补线性代数和概率统计。"
+    }
+  ],
+  "concepts": [
+    {"id": "python", "label": "Python 基础", "category": "prerequisite", "description": "能够阅读、修改和运行基础代码。", "source_keys": ["S1", "S5"]},
+    {"id": "linear_algebra", "label": "线性代数", "category": "prerequisite", "description": "理解向量、矩阵和常见运算。", "source_keys": ["S2", "S9"]},
+    {"id": "probability", "label": "概率统计", "category": "prerequisite", "description": "理解抽样、不确定性和评估。", "source_keys": ["S2", "S9"]},
+    {"id": "ml_workflow", "label": "机器学习流程", "category": "core", "description": "数据、训练、评估和复盘的完整流程。", "source_keys": ["S3", "S10"]},
+    {"id": "data_preparation", "label": "数据准备", "category": "core", "description": "清洗并划分训练、验证和测试数据。", "source_keys": ["S5", "S6"]},
+    {"id": "model_training", "label": "模型训练", "category": "core", "description": "用训练数据学习模型参数。", "source_keys": ["S2", "S3"]},
+    {"id": "evaluation", "label": "模型评估", "category": "core", "description": "判断模型对未见数据的泛化能力。", "source_keys": ["S6", "S8"]},
+    {"id": "mini_project", "label": "小型项目", "category": "practice", "description": "完成一个可复盘的端到端项目。", "source_keys": ["S1", "S7"]}
+  ],
+  "edges": [
+    {"source": "python", "target": "data_preparation", "type": "PREREQUISITE_OF", "label": "前置知识"},
+    {"source": "linear_algebra", "target": "model_training", "type": "PREREQUISITE_OF", "label": "帮助理解"},
+    {"source": "probability", "target": "evaluation", "type": "PREREQUISITE_OF", "label": "帮助理解"},
+    {"source": "data_preparation", "target": "model_training", "type": "LEARN_AFTER", "label": "学习顺序"},
+    {"source": "model_training", "target": "evaluation", "type": "LEARN_AFTER", "label": "学习顺序"},
+    {"source": "ml_workflow", "target": "mini_project", "type": "PREREQUISITE_OF", "label": "用于实践"},
+    {"source": "evaluation", "target": "mini_project", "type": "PART_OF", "label": "项目环节"}
+  ],
+  "warnings": ["当前为合成演示数据，上线前必须替换为真实且有权使用的来源。"]
+}
+

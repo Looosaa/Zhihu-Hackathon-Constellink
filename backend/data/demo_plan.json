@@ -1,0 +1,13 @@
+{
+  "strategy": "先认识完整流程，再完成小项目，并围绕评估问题补充必要理论。",
+  "days": [
+    {"day": 1, "title": "准备环境", "goal": "能够运行基础 Python 示例", "concept_ids": ["python"], "activities": ["检查 Python 环境", "运行并修改一个示例"], "source_keys": ["S5"], "output": "一个可运行脚本", "self_check": "我能解释代码每一步吗？", "estimated_minutes": 15},
+    {"day": 2, "title": "认识流程", "goal": "说出机器学习项目主要步骤", "concept_ids": ["ml_workflow"], "activities": ["阅读流程观点", "画流程图"], "source_keys": ["S3", "S10"], "output": "一张流程图", "self_check": "训练和评估为什么分开？", "estimated_minutes": 15},
+    {"day": 3, "title": "准备数据", "goal": "理解数据划分", "concept_ids": ["data_preparation"], "activities": ["整理小数据集", "划分数据"], "source_keys": ["S5", "S6"], "output": "数据划分结果", "self_check": "测试数据为什么不能参与训练？", "estimated_minutes": 15},
+    {"day": 4, "title": "训练模型", "goal": "完成一次基础训练", "concept_ids": ["model_training"], "activities": ["训练基线模型", "记录参数"], "source_keys": ["S2", "S3"], "output": "一次训练结果", "self_check": "模型从训练数据中学到了什么？", "estimated_minutes": 15},
+    {"day": 5, "title": "评估模型", "goal": "使用指标评估结果", "concept_ids": ["evaluation", "probability"], "activities": ["计算评估指标", "检查数据泄漏"], "source_keys": ["S6", "S9"], "output": "一张评估表", "self_check": "高训练准确率是否代表模型有效？", "estimated_minutes": 15},
+    {"day": 6, "title": "完成项目", "goal": "形成端到端结果", "concept_ids": ["mini_project"], "activities": ["串联全部步骤", "记录失败与改进"], "source_keys": ["S1", "S7"], "output": "一个端到端小项目", "self_check": "哪个环节最影响结果？", "estimated_minutes": 15},
+    {"day": 7, "title": "复盘输出", "goal": "用自己的话讲清完整流程", "concept_ids": ["ml_workflow", "mini_project"], "activities": ["复盘七天记录", "向同伴讲解"], "source_keys": ["S8", "S10"], "output": "三分钟讲解或总结文档", "self_check": "我能否解释路线选择及下一步？", "estimated_minutes": 15}
+  ]
+}
+

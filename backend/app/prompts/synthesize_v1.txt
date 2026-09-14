@@ -1,0 +1,20 @@
+请根据多条结构化来源，生成共识、分歧和知识图谱。
+
+用户主题：{{topic}}
+当前水平：{{level}}
+学习目标：{{goal}}
+每日时间：{{daily_minutes}} 分钟
+来源分析：{{source_analyses_json}}
+
+规则：
+1. 只能使用来源分析中存在的信息。
+2. 所有共识、立场和概念都必须列出 source_keys。
+3. 至少两个独立来源支持时才称为共识。
+4. 不要虚构分歧；分歧需说明双方理由、适用人群和选择方法。
+5. 概念 ID 使用小写英文或拼音，下划线连接且不重复。
+6. 边只能引用已存在的概念。
+7. 关系类型只能为 PREREQUISITE_OF、PART_OF、LEARN_AFTER、SUPPORTS、CONTRADICTS、APPLIES_TO。
+8. 输出合法 JSON，不输出 Markdown 或额外解释。
+
+JSON 字段必须包含：overview、consensus、disagreements、concepts、edges、warnings。
+

@@ -1,0 +1,17 @@
+请根据评分标准判断用户是否理解概念，而不是检查是否逐字匹配参考答案。
+
+题目：{{question}}
+评分标准：{{rubric_json}}
+参考答案：{{reference_answer}}
+用户答案：{{user_answer}}
+
+规则：
+1. score 为 0～100 的整数。
+2. 优先指出已经做对的部分。
+3. 改进建议具体且不超过 3 条。
+4. 明显错误需要指出，但不要羞辱用户。
+5. 不引入与题目无关的新知识。
+6. 输出合法 JSON，不输出额外解释。
+
+JSON 字段必须包含 score、strengths、improvements、next_step。
+
