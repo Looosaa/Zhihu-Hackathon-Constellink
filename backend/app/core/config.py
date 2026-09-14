@@ -22,7 +22,8 @@ class Settings(BaseSettings):
     llm_base_url: str = ""
     llm_api_key: str = ""
     llm_model: str = "fake-zhijing-v1"
-    llm_timeout_seconds: float = Field(default=45, ge=5, le=180)
+    llm_timeout_seconds: float = Field(default=50, ge=5, le=180)
+    analysis_timeout_seconds: float = Field(default=120, ge=30, le=180)
     llm_json_mode: bool = False
 
     content_provider: str = "demo"
@@ -77,6 +78,10 @@ class Settings(BaseSettings):
             self.llm_base_url and self.llm_api_key and self.llm_model
         ):
             raise ValueError("LLM base URL, API key, and model are required")
+        if self.llm_backend == "openai_compatible":
+            # Synchronous plan/quiz endpoints must finish before CloudBase's
+            # 60-second gateway limit. Analysis has its own background timeout.
+            self.llm_timeout_seconds = min(self.llm_timeout_seconds, 55)
         if self.content_provider == "zhihu" and not self.zhihu_access_secret:
             raise ValueError("ZHIHU_ACCESS_SECRET is required for Zhihu provider")
         return self

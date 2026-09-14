@@ -35,6 +35,8 @@ class LLMPort(Protocol):
         system_prompt: str,
         user_prompt: str,
         response_model: type[ModelT],
+        timeout_seconds: float | None = None,
+        max_tokens: int | None = None,
     ) -> ModelT: ...
 
 
@@ -89,4 +91,3 @@ class LearningRepositoryPort(Protocol):
         answer: str,
         grade: GradeResult,
     ) -> dict[str, Any]: ...
-

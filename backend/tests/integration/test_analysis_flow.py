@@ -10,9 +10,11 @@ CLIENT_ID = "test-browser-1234567890"
 class CountingFakeLLM(FakeLLM):
     def __init__(self):
         self.tasks: list[str] = []
+        self.timeouts: list[float | None] = []
 
     async def generate_structured(self, **kwargs):
         self.tasks.append(kwargs["task_name"])
+        self.timeouts.append(kwargs.get("timeout_seconds"))
         return await super().generate_structured(**kwargs)
 
 
@@ -59,7 +61,8 @@ def test_complete_offline_learning_flow():
         completed_body = completed.json()
         assert len(completed_body["data"]["sources"]) >= 8
         assert len(completed_body["data"]["analysis"]["concepts"]) >= 8
-        assert counting_llm.tasks == ["extract_viewpoints_batch", "synthesize"]
+        assert counting_llm.tasks == ["analyze_sources"]
+        assert counting_llm.timeouts == [120]
 
         plan = client.post(
             f"/api/spaces/{space_id}/plan",

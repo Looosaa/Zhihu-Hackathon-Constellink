@@ -1,0 +1,27 @@
+请直接根据多条知乎来源生成一份简洁、可追溯的学习分析。
+
+用户主题：{{topic}}
+当前水平：{{level}}
+学习目标：{{goal}}
+每日时间：{{daily_minutes}} 分钟
+来源列表：{{sources_json}}
+
+规则：
+1. 只能使用来源列表中存在的信息，不补充外部事实。
+2. 共识必须至少由两个独立来源支持，并列出对应 source_keys。
+3. 不要虚构分歧；存在真实分歧时再说明双方理由、适用人群和选择方法。
+4. 概念 ID 使用小写英文或拼音，下划线连接且不重复。
+5. 概念 category 只能为 core、prerequisite、practice、debate、extension。
+6. 边只能引用已生成的概念，type 只能为 PREREQUISITE_OF、PART_OF、LEARN_AFTER、SUPPORTS、CONTRADICTS、APPLIES_TO。
+7. 内容要简洁：overview 不超过 300 字；共识 3～4 条，每条 detail 不超过 180 字；分歧不超过 2 条；概念 6～10 个，每个 description 不超过 120 字；边不超过 14 条；警告不超过 3 条。
+8. 输出合法 JSON，不输出 Markdown 或额外解释。
+
+严格按下面的 JSON 形状输出，各数组可以按规则缩短，但不要省略字段：
+{
+  "overview": "主题概览",
+  "consensus": [{"id": "consensus_1", "title": "共识标题", "detail": "共识说明", "source_keys": ["S1", "S2"]}],
+  "disagreements": [{"id": "debate_1", "question": "争议问题", "side_a": {"title": "立场 A", "reason": "理由", "suitable_for": ["适用人群"], "source_keys": ["S1"]}, "side_b": {"title": "立场 B", "reason": "理由", "suitable_for": ["适用人群"], "source_keys": ["S2"]}, "how_to_choose": "选择建议"}],
+  "concepts": [{"id": "concept_id", "label": "概念名", "category": "core", "description": "概念说明", "source_keys": ["S1"]}],
+  "edges": [{"source": "concept_id", "target": "another_id", "type": "PREREQUISITE_OF", "label": "关系说明"}],
+  "warnings": []
+}

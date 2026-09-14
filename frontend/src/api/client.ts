@@ -67,7 +67,7 @@ export async function waitForLearningSpace(
   spaceId: string,
   options: { timeoutMs?: number; intervalMs?: number } = {},
 ) {
-  const timeoutMs = options.timeoutMs ?? 4 * 60 * 1000
+  const timeoutMs = options.timeoutMs ?? 6 * 60 * 1000
   const intervalMs = options.intervalMs ?? 2000
   const deadline = Date.now() + timeoutMs
   let lastNetworkError: unknown = null

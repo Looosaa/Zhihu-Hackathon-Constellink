@@ -13,7 +13,6 @@ from app.domain.analysis_models import (
     AnalysisBundle,
     AnalysisResult,
     SourceViewpoint,
-    SourceViewpointBatch,
 )
 from app.domain.enums import ExecutionMode, SourceProvider, SpaceStatus
 from app.domain.ports import ContentProviderPort, LearningRepositoryPort, LLMPort
@@ -88,11 +87,12 @@ class AnalysisOrchestrator:
                 viewpoints: list[SourceViewpoint] = []
                 mode = ExecutionMode.PRECOMPUTED
             else:
-                viewpoints = await self._extract_all(space.topic, sources)
-                useful = [item for item in viewpoints if item.relevance_score >= 0.4]
-                if len(useful) < 3:
-                    raise ContentUnavailableError()
-                analysis = await self._synthesize(space, useful)
+                # A single structured request keeps live analysis fast enough for
+                # interactive use. The previous extract-then-synthesize pipeline
+                # generated two large JSON responses and frequently exceeded the
+                # provider timeout even after the HTTP request moved off-thread.
+                analysis = await self._analyze_sources(space, sources)
+                viewpoints = []
                 mode = self._execution_mode(sources)
 
             analysis.validate_references({item.source_key for item in sources})
@@ -118,7 +118,7 @@ class AnalysisOrchestrator:
                 await self.repository.mark_failed(space.id, safe_message_for(exc))
             raise
 
-    async def _extract_all(self, topic: str, sources) -> list[SourceViewpoint]:
+    async def _analyze_sources(self, space, sources) -> AnalysisResult:
         sources_json = json.dumps(
             [
                 {
@@ -132,41 +132,20 @@ class AnalysisOrchestrator:
             ensure_ascii=False,
         )
         prompt = self.prompt_loader.render(
-            "extract_viewpoints_batch",
-            topic=topic,
-            sources_json=sources_json,
-        )
-        batch = await self.llm.generate_structured(
-            task_name="extract_viewpoints_batch",
-            system_prompt="你是严谨的学习内容分析员。",
-            user_prompt=prompt,
-            response_model=SourceViewpointBatch,
-        )
-
-        valid_keys = {source.source_key for source in sources}
-        unique: dict[str, SourceViewpoint] = {}
-        for viewpoint in batch.items:
-            if viewpoint.source_key in valid_keys:
-                unique.setdefault(viewpoint.source_key, viewpoint)
-        return list(unique.values())
-
-    async def _synthesize(self, space, viewpoints) -> AnalysisResult:
-        prompt = self.prompt_loader.render(
-            "synthesize",
+            "analyze_sources",
             topic=space.topic,
             level=space.level.value,
             goal=space.goal.value,
             daily_minutes=space.daily_minutes,
-            source_analyses_json=json.dumps(
-                [item.model_dump(mode="json") for item in viewpoints],
-                ensure_ascii=False,
-            ),
+            sources_json=sources_json,
         )
         return await self.llm.generate_structured(
-            task_name="synthesize",
-            system_prompt="你是严谨的 AI 学习教练。",
+            task_name="analyze_sources",
+            system_prompt="你是严谨、简洁的 AI 学习教练。",
             user_prompt=prompt,
             response_model=AnalysisResult,
+            timeout_seconds=self.settings.analysis_timeout_seconds,
+            max_tokens=3072,
         )
 
     def _load_precomputed_analysis(self) -> AnalysisResult:

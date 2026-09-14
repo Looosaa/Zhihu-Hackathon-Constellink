@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import time
 from typing import TypeVar
@@ -39,24 +40,41 @@ class OpenAICompatibleLLM:
         system_prompt: str,
         user_prompt: str,
         response_model: type[ModelT],
+        timeout_seconds: float | None = None,
+        max_tokens: int | None = None,
     ) -> ModelT:
         started = time.perf_counter()
+        request_timeout = timeout_seconds or self.timeout_seconds
+        output_token_limit = max_tokens or 4096
         try:
-            text = await self._request(system_prompt, user_prompt)
-            try:
-                result = parse_structured_output(text, response_model)
-                retries = 0
-            except LLMInvalidOutputError as first_error:
-                repair_prompt = (
-                    "请修复下面的输出，使它严格符合给定 JSON Schema。"
-                    "只返回 JSON，不要解释。\n\n"
-                    f"Schema:\n{response_model.model_json_schema()}\n\n"
-                    f"校验错误:\n{first_error.detail}\n\n"
-                    f"原始输出:\n{text[:8000]}"
+            # One deadline covers both the initial completion and an optional
+            # JSON-repair completion, rather than allowing the budget twice.
+            async with asyncio.timeout(request_timeout):
+                text = await self._request(
+                    system_prompt,
+                    user_prompt,
+                    request_timeout,
+                    output_token_limit,
                 )
-                repaired = await self._request("你是 JSON 格式修复器。", repair_prompt)
-                result = parse_structured_output(repaired, response_model)
-                retries = 1
+                try:
+                    result = parse_structured_output(text, response_model)
+                    retries = 0
+                except LLMInvalidOutputError as first_error:
+                    repair_prompt = (
+                        "请修复下面的输出，使它严格符合给定 JSON Schema。"
+                        "只返回 JSON，不要解释。\n\n"
+                        f"Schema:\n{response_model.model_json_schema()}\n\n"
+                        f"校验错误:\n{first_error.detail}\n\n"
+                        f"原始输出:\n{text[:8000]}"
+                    )
+                    repaired = await self._request(
+                        "你是 JSON 格式修复器。",
+                        repair_prompt,
+                        request_timeout,
+                        output_token_limit,
+                    )
+                    result = parse_structured_output(repaired, response_model)
+                    retries = 1
             logger.info(
                 "llm_completed",
                 extra={
@@ -66,17 +84,24 @@ class OpenAICompatibleLLM:
                 },
             )
             return result
-        except httpx.TimeoutException as exc:
+        except (TimeoutError, httpx.TimeoutException) as exc:
             raise LLMTimeoutError(str(exc)) from exc
         except LLMInvalidOutputError:
             raise
         except httpx.HTTPError as exc:
             raise LLMProviderError(str(exc)) from exc
 
-    async def _request(self, system_prompt: str, user_prompt: str) -> str:
+    async def _request(
+        self,
+        system_prompt: str,
+        user_prompt: str,
+        timeout_seconds: float,
+        max_tokens: int,
+    ) -> str:
         payload = {
             "model": self._model_name,
             "temperature": 0.2,
+            "max_tokens": max_tokens,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
@@ -88,7 +113,7 @@ class OpenAICompatibleLLM:
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
+        async with httpx.AsyncClient(timeout=timeout_seconds) as client:
             response = await client.post(
                 f"{self.base_url}/chat/completions", json=payload, headers=headers
             )
@@ -98,4 +123,3 @@ class OpenAICompatibleLLM:
             return body["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:
             raise LLMProviderError("Missing assistant content in LLM response") from exc
-

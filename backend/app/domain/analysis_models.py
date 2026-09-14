@@ -25,10 +25,6 @@ class SourceViewpoint(BaseModel):
     limitations: list[str] = Field(default_factory=list, max_length=8)
 
 
-class SourceViewpointBatch(BaseModel):
-    items: list[SourceViewpoint] = Field(min_length=1, max_length=20)
-
-
 class ConsensusItem(BaseModel):
     id: str = Field(min_length=1, max_length=64)
     title: str = Field(min_length=1, max_length=120)

@@ -21,6 +21,8 @@ class FakeLLM:
         system_prompt: str,
         user_prompt: str,
         response_model: type[ModelT],
+        timeout_seconds: float | None = None,
+        max_tokens: int | None = None,
     ) -> ModelT:
         payload = self._payload(task_name, user_prompt)
         return response_model.model_validate(payload)
@@ -55,7 +57,7 @@ class FakeLLM:
             if task_name == "extract_viewpoints_batch":
                 return {"items": [viewpoint(key) for key in keys]}
             return viewpoint(keys[0])
-        if task_name == "synthesize":
+        if task_name in {"synthesize", "analyze_sources"}:
             return {
                 "overview": "多数观点认可实践与基础并行，但在数学学习的先后顺序上存在分歧。",
                 "consensus": [
