@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     zhihu_oauth_app_id: str = "618"
     zhihu_oauth_app_key: str = ""
     zhihu_oauth_redirect_uri: str = ""
+    zhihu_oauth_allow_missing_state: bool = False
     oauth_cookie_secure: bool = True
 
     max_sources: int = Field(default=12, ge=3, le=20)

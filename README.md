@@ -49,11 +49,12 @@ npm run dev
 ZHIHU_OAUTH_APP_ID=618
 ZHIHU_OAUTH_APP_KEY=请填写真实密钥
 ZHIHU_OAUTH_REDIRECT_URI=http://127.0.0.1:8000/api/auth/zhihu/callback
+ZHIHU_OAUTH_ALLOW_MISSING_STATE=true
 OAUTH_COOKIE_SECURE=false
 FRONTEND_ORIGIN=http://127.0.0.1:5173
 ```
 
-`ZHIHU_OAUTH_REDIRECT_URI` 必须与知乎开放平台后台登记的完整回调地址逐字一致。`AppKey`、Supabase Service Role Key、大模型 API Key 都不能出现在前端源码、URL 或 Git 提交中。
+`ZHIHU_OAUTH_REDIRECT_URI` 必须与知乎开放平台后台登记的完整回调地址逐字一致。`ZHIHU_OAUTH_ALLOW_MISSING_STATE=true` 只用于兼容本地黑客松联调；生产环境必须关闭，并向平台确认标准 `state` 支持。`AppKey`、Supabase Service Role Key、大模型 API Key 都不能出现在前端源码、URL 或 Git 提交中。
 
 ## 提交前检查
 

@@ -87,6 +87,23 @@ def test_state_required_bound_to_browser_and_consumed_once():
         asyncio.run(service.complete("authorized-code", state, browser))
 
 
+def test_missing_state_compatibility_is_explicit_and_development_only():
+    config, calls = settings(), []
+    config.zhihu_oauth_allow_missing_state = True
+    service = OAuthService(config, make_provider(config, calls))
+    _, browser = service.begin()
+    asyncio.run(service.complete("authorized-code", None, browser))
+    assert len(calls) == 2
+
+    config.app_env = "production"
+    config.zhihu_oauth_redirect_uri = "https://example.com/api/auth/zhihu/callback"
+    config.oauth_cookie_secure = True
+    service = OAuthService(config, make_provider(config, []))
+    _, browser = service.begin()
+    with pytest.raises(LoginRequired):
+        asyncio.run(service.complete("authorized-code", None, browser))
+
+
 def test_expired_or_rejected_token_does_not_read_owner_data():
     config, calls = settings(), []
     def rejected(request):

@@ -91,11 +91,12 @@ ZHIHU_ACCESS_SECRET=replace_me
 ZHIHU_OAUTH_APP_ID=618
 ZHIHU_OAUTH_APP_KEY=replace_me
 ZHIHU_OAUTH_REDIRECT_URI=http://127.0.0.1:8000/api/auth/zhihu/callback
+ZHIHU_OAUTH_ALLOW_MISSING_STATE=true
 OAUTH_COOKIE_SECURE=false
 FRONTEND_ORIGIN=http://127.0.0.1:5173
 ```
 
-本地 HTTP 开发才允许使用 `OAUTH_COOKIE_SECURE=false`；部署到 HTTPS 后必须改为 `true`。回调地址必须与知乎后台登记值逐字一致。OAuth AppKey 和用户令牌只能保存在后端。
+本地 HTTP 开发才允许使用 `OAUTH_COOKIE_SECURE=false` 和缺失 `state` 的兼容开关；部署到 HTTPS 后必须分别改为 `true` 和 `false`。回调地址必须与知乎后台登记值逐字一致。OAuth AppKey 和用户令牌只能保存在后端。
 
 ## 比赛兜底
 

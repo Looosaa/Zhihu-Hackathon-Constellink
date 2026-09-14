@@ -45,7 +45,7 @@ async def callback(request: Request, authorization_code: str | None = None,
     service = request.app.state.oauth
     target = service.settings.frontend_origin.rstrip("/")
     try:
-        if error or not state:
+        if error:
             raise LoginRequired()
         session_id, lifetime = await service.complete(
             authorization_code or code, state, request.cookies.get(STATE_COOKIE))

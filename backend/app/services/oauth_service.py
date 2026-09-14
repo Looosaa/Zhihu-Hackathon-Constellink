@@ -47,11 +47,19 @@ class OAuthService:
 
     async def complete(self, code, state, browser):
         self._prune()
-        pending = self.pending.get(state or "")
+        pending_state = state
+        if (not pending_state and browser
+                and self.settings.app_env == "development"
+                and self.settings.zhihu_oauth_allow_missing_state):
+            matches = [key for key, value in self.pending.items()
+                       if secrets.compare_digest(value["browser"], browser)]
+            if len(matches) == 1:
+                pending_state = matches[0]
+        pending = self.pending.get(pending_state or "")
         if not pending or not browser or not secrets.compare_digest(pending["browser"], browser):
             raise LoginRequired()
         # State is consumed before network calls; a callback cannot be replayed.
-        del self.pending[state]
+        del self.pending[pending_state]
         if not code or len(self.sessions) >= 1000:
             raise LoginRequired()
         token, lifetime = await self.provider.exchange(code)
