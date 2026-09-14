@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Bell, BookOpen, ChevronRight, Clock3, Link2, LoaderCircle, MoreHorizontal, Play, Plus, Search, Sparkles, X } from 'lucide-react'
 import { analyzeLearningSpace, createLearningSpace, createQuiz, createStudyPlan, submitQuizAttempt, waitForLearningSpace } from './api/client'
-import { KnowledgeGraph } from './components/KnowledgeGraph'
+import { KnowledgeStarMap } from './components/KnowledgeStarMap'
 import { ZhihuAccount } from './components/ZhihuAccount'
 import type { CompleteLearningSpace, Grade, LearningGoal, LearnerLevel, Quiz } from './types'
 import './App.css'
@@ -133,7 +133,7 @@ function App() {
           </div>
 
           {tab === '图谱' && <>
-            <KnowledgeGraph nodes={graphNodes} edges={graphEdges} isLive={Boolean(result)} onOpen={() => setTab('详细介绍')} />
+            <KnowledgeStarMap nodes={graphNodes} edges={graphEdges} isLive={Boolean(result)} onOpen={() => setTab('详细介绍')} />
           </>}
 
           {tab === '列表' && <div className="result-panel"><h2>知识点列表</h2>

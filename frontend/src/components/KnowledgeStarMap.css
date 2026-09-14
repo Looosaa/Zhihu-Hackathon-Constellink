@@ -1,0 +1,91 @@
+.constellation { min-width:0; overflow:hidden; border-radius:0 0 10px 10px; background:#fff; }
+.cs-toolbar { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:20px 24px; }
+.cs-heading { display:flex; align-items:center; gap:11px; min-width:0; }
+.cs-heading-icon { display:grid; place-items:center; width:36px; height:36px; flex-shrink:0; border-radius:11px; color:#de7933; background:#fff1e6; }
+.cs-heading h2 { margin:0; color:#3f4942; font-size:16px; }
+.cs-heading p { margin:5px 0 0; font-size:11px; color:#929990; }
+.cs-view-switch { display:flex; align-items:center; gap:6px; flex-shrink:0; padding:9px 11px; border:1px solid #e7e6e1; border-radius:8px; background:white; color:#747c76; font-size:11px; }
+.cs-view-switch:hover { color:#cc702f; border-color:#dfb393; }
+.cs-universe { position:relative; margin:0 16px; overflow:hidden; border:1px solid #293331; border-radius:14px; background:radial-gradient(ellipse at 50% 48%,#233c4138,transparent 55%),radial-gradient(ellipse at 82% 20%,#c8874220,transparent 45%),#10181b; color:#eee9dc; }
+.cs-hud { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; position:relative; z-index:1; padding:18px 20px 0; color:#97aaa8; font-size:10px; letter-spacing:.05em; }
+.cs-hud>span:first-child { color:#e9be83; display:flex; gap:7px; align-items:center; }
+.cs-hud i { width:5px; height:5px; border-radius:50%; background:#e8b87c; box-shadow:0 0 10px #e8b87c; }
+.cs-stage { position:relative; width:100%; isolation:isolate; }
+.cs-stars,.cs-lines { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.cs-stars i { position:absolute; border-radius:50%; background:#d1e0dc; }
+.cs-orbits ellipse { fill:none; stroke:#9db3b3; stroke-width:.8; stroke-dasharray:1 8; stroke-linecap:round; opacity:.18; }
+.cs-edge { fill:none; stroke:#e2ae72; stroke-width:1.25; opacity:.5; transition:opacity .25s,stroke-width .25s; vector-effect:non-scaling-stroke; }
+.cs-edge-supports,.cs-edge-applies_to { stroke:#87c2b3; }
+.cs-edge-contradicts { stroke:#dc91a4; stroke-dasharray:5 4; }
+.cs-edge.is-muted { opacity:.1; }
+.cs-edge.is-active { opacity:1; stroke-width:2.2; filter:drop-shadow(0 0 3px #dfb68070); }
+.cs-earth,.cs-planet { position:absolute; z-index:2; display:flex; flex-direction:column; align-items:center; padding:0; border:0; background:transparent; color:#e2e6df; transform:translate(-50%,-28px); text-align:center; width:128px; }
+.cs-planet-sphere { position:relative; display:block; width:56px; height:56px; flex-shrink:0; border-radius:50%; background:radial-gradient(circle at 28% 22%,#ffffff95,transparent 40%),radial-gradient(circle at 32% 32%,var(--planet-color) 18%,#17212ccc 90%); box-shadow:inset -12px -6px 16px #0009,0 0 20px color-mix(in srgb,var(--planet-color) 12%,transparent); transition:box-shadow .25s,transform .25s; }
+.cs-texture-1 { background:radial-gradient(ellipse at 30% 35%,#f6d7b4a0 0 9%,transparent 10%),radial-gradient(ellipse at 62% 70%,#704731a0 0 16%,transparent 17%),radial-gradient(circle at 28% 25%,var(--planet-color),#3d272a); }
+.cs-texture-2 { background:radial-gradient(circle at 32% 36%,#ffffff50 0 8%,transparent 9%),radial-gradient(circle at 67% 68%,#0002 0 15%,transparent 16%),radial-gradient(circle at 25% 25%,var(--planet-color),#282638); }
+.cs-texture-3 { background:repeating-linear-gradient(165deg,#ffffff20 0 5px,#6e543720 7px 10px,transparent 12px 17px),var(--planet-color); }
+.cs-planet-number { position:absolute; top:-8px; left:-13px; font-size:9px; font-style:normal; color:#a7b2b5; letter-spacing:.1em; }
+.cs-saturn-ring { position:absolute; inset:16px -16px; border:5px solid #d9bd8580; border-top-color:#d9bd8530; border-radius:50%; transform:rotate(-28deg); }
+.cs-planet b { width:100%; display:-webkit-box; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:2; margin-top:12px; font-size:12px; font-weight:500; line-height:1.5; overflow-wrap:anywhere; text-shadow:0 2px 6px #10181b; }
+.cs-planet small { margin-top:4px; color:#8fa2a3; font-size:9px; }
+.cs-planet:hover .cs-planet-sphere,.cs-planet.is-selected .cs-planet-sphere { transform:scale(1.08); box-shadow:inset -12px -6px 16px #0009,0 0 0 4px #e6b57a25,0 0 0 6px #e6b57a80,0 0 28px #e6b57a30; }
+.cs-planet.is-selected b { color:#f4c78e; }
+.cs-planet.is-connected small { color:#c8d8d1; }
+.cs-earth { width:174px; transform:translate(-50%,-45px); }
+.cs-earth-globe { display:block; position:relative; width:90px; height:90px; overflow:hidden; border-radius:50%; background:radial-gradient(circle at 30% 20%,#d5f0e9 0,#5a9eac 21%,#306584 46%,#122539 90%); box-shadow:0 0 36px #63bad334,0 0 0 1px #9ecddb45; }
+.cs-earth-globe::after { content:''; position:absolute; inset:0; border-radius:50%; box-shadow:inset -18px -8px 24px #081521aa,inset 2px 2px 8px #d6fbf988; }
+.cs-earth-globe svg { width:100%; height:100%; fill:#91af8d; opacity:.78; }
+.cs-earth b { margin-top:13px; font-size:14px; font-weight:500; letter-spacing:.06em; }
+.cs-earth small { color:#89a4aa; font-size:10px; margin-top:5px; }
+.cs-earth.is-selected .cs-earth-globe { box-shadow:0 0 0 5px #9bc1ca0c,0 0 0 6px #8cb4bc35,0 0 42px #63bad334; }
+.cs-space-caption { padding:10px 20px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; color:#81999b; font-size:10px; }
+.cs-space-caption button { display:flex; gap:5px; align-items:center; background:transparent; border:0; color:#c5b497; padding:5px 0; font-size:10px; }
+.constellation button:focus-visible { outline:2px solid #ee9d56; outline-offset:5px; border-radius:6px; }
+.cs-inspector { margin:16px; padding:18px 20px; background:#fcfaf6; border:1px solid #eee7dc; border-radius:12px; }
+.cs-inspector-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.cs-inspector-top>span { color:#c0783e; font-size:10px; letter-spacing:.1em; }
+.cs-stepper { display:flex; gap:7px; }
+.cs-stepper button { display:grid; place-items:center; width:28px; height:28px; background:#fff; border:1px solid #e8e2d7; border-radius:7px; color:#6e766c; }
+.constellation button:disabled { opacity:.35; cursor:not-allowed; }
+.cs-inspector h3 { margin:7px 0; font-size:17px; color:#465149; overflow-wrap:anywhere; }
+.cs-inspector p { margin:0; color:#7e877e; line-height:1.8; font-size:12px; overflow-wrap:anywhere; }
+.cs-explore { display:flex; align-items:center; gap:7px; margin-top:14px; border:0; border-radius:7px; background:#f18035; color:#fff; padding:9px 13px; font-size:11px; }
+.cs-related { display:flex; flex-wrap:wrap; gap:7px; margin-top:13px; }
+.cs-related button { display:flex; gap:7px; align-items:center; border:1px solid #e4e7de; border-radius:6px; background:#fff; color:#616f63; padding:7px 9px; max-width:100%; font-size:11px; text-align:left; overflow-wrap:anywhere; }
+.cs-related button span { flex-shrink:1; color:#b58359; }
+.cs-related>span { color:#939c94; font-size:11px; }
+.cs-legend { display:flex; flex-wrap:wrap; align-items:center; gap:10px 15px; padding:0 20px 19px; color:#949d94; font-size:10px; }
+.cs-legend>span { display:flex; align-items:center; gap:5px; }
+.cs-legend i { width:16px; height:2px; background:#dfa671; }
+.cs-legend .support { background:#7daa98; }
+.cs-legend .debate { background:#ce869a; }
+.cs-legend small { margin-left:auto; font-size:9px; }
+.cs-card-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:16px; background:#fafbf8; }
+.cs-card { min-width:0; padding:16px; border:1px solid #e2e6e1; border-radius:12px; background:white; text-align:left; color:#4c574e; }
+.cs-card.is-selected { border-color:#df9c63; box-shadow:0 0 0 2px #e5b58820; }
+.cs-card-meta { display:flex; justify-content:space-between; gap:10px; font-size:10px; color:#a0aaa0; }
+.cs-card-meta em { font-style:normal; color:#9c835e; }
+.cs-card>b { display:block; margin-top:12px; font-size:13px; overflow-wrap:anywhere; }
+.cs-card p { display:-webkit-box; overflow:hidden; -webkit-line-clamp:2; -webkit-box-orient:vertical; font-size:11px; color:#929b90; line-height:1.7; overflow-wrap:anywhere; }
+.cs-card-link { display:flex; align-items:center; gap:4px; color:#d5803f; font-size:11px; }
+@container main-content (max-width:599px) {
+  .cs-toolbar { padding:17px 14px; gap:9px; }
+  .cs-heading { gap:8px; }
+  .cs-heading p { font-size:10px; }
+  .cs-heading h2 { font-size:15px; }
+  .cs-view-switch { padding:8px; font-size:10px; }
+  .cs-universe { margin:0 10px; }
+  .cs-hud { padding:15px 13px 0; font-size:9px; }
+  .cs-earth-globe { width:72px; height:72px; }
+  .cs-earth { transform:translate(-50%,-36px); }
+  .cs-planet { width:34%; transform:translate(-50%,-23px); }
+  .cs-planet-sphere { width:46px; height:46px; }
+  .cs-planet b { font-size:11px; margin-top:9px; }
+  .cs-planet small { font-size:9px; }
+  .cs-space-caption { flex-wrap:wrap; padding:10px 13px 15px; }
+  .cs-inspector { margin:12px 10px; padding:15px; }
+  .cs-legend { padding:0 14px 16px; }
+  .cs-legend small { margin-left:0; width:100%; }
+}
+@container main-content (max-width:399px) { .cs-card-grid { grid-template-columns:1fr; } }
+@media(prefers-reduced-motion:reduce) { .constellation * { transition:none!important; animation:none!important; } }
