@@ -11,6 +11,9 @@ export interface LearningSpaceInput {
 export interface LearningSpace {
   id: string
   topic: string
+  level?: LearnerLevel
+  goal?: LearningGoal
+  daily_minutes?: number
   status: 'created' | 'analyzing' | 'ready' | 'failed'
 }
 
@@ -20,6 +23,7 @@ export interface Source {
   author_name: string
   source_url: string
   excerpt: string
+  provider?: 'zhihu' | 'demo'
 }
 
 export interface Consensus {
@@ -51,4 +55,44 @@ export interface Analysis {
   concepts: { id: string; label: string; description: string; category: string }[]
   edges: { source: string; target: string; type: string; label?: string }[]
   warnings: string[]
+}
+
+export interface StudyDay {
+  day: number
+  title: string
+  goal: string
+  activities: string[]
+  output: string
+  self_check: string
+  estimated_minutes: number
+}
+
+export interface StudyPlan {
+  strategy: string
+  days: StudyDay[]
+}
+
+export interface Quiz {
+  id: string
+  learning_space_id: string
+  concept_id?: string | null
+  question: string
+  source_keys: string[]
+}
+
+export interface Grade {
+  id: string
+  quiz_id: string
+  score: number
+  strengths: string[]
+  improvements: string[]
+  next_step: string
+}
+
+export interface CompleteLearningSpace {
+  space: LearningSpace
+  sources: Source[]
+  analysis?: Analysis
+  plan?: StudyPlan
+  quizzes?: Quiz[]
 }

@@ -83,6 +83,20 @@ ZHIHU_ACCESS_SECRET=replace_me
 
 知乎 Provider 失败或返回来源不足时会自动切换 Demo Provider。拿到真实接口响应后，应先保存一份脱敏 fixture，并在 `app/providers/content/zhihu.py` 中根据真实字段确认归一化映射。
 
+## 接入知乎 OAuth 登录
+
+先在知乎开放平台登记完整回调地址，再编辑后端 `.env`：
+
+```dotenv
+ZHIHU_OAUTH_APP_ID=618
+ZHIHU_OAUTH_APP_KEY=replace_me
+ZHIHU_OAUTH_REDIRECT_URI=http://127.0.0.1:8000/api/auth/zhihu/callback
+OAUTH_COOKIE_SECURE=false
+FRONTEND_ORIGIN=http://127.0.0.1:5173
+```
+
+本地 HTTP 开发才允许使用 `OAUTH_COOKIE_SECURE=false`；部署到 HTTPS 后必须改为 `true`。回调地址必须与知乎后台登记值逐字一致。OAuth AppKey 和用户令牌只能保存在后端。
+
 ## 比赛兜底
 
 完全预计算模式：
@@ -95,4 +109,3 @@ USE_PRECOMPUTED_DEMO=true
 ```
 
 `data/demo_sources.json` 是合成联调数据，上线或参赛展示前必须替换为有权使用、作者和链接可追溯的真实来源。
-

@@ -1,6 +1,6 @@
-import type { Analysis, LearningSpaceInput } from '../types'
+import type { CompleteLearningSpace, Grade, LearningSpaceInput, Quiz, StudyPlan } from '../types'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000'
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 const CLIENT_ID_KEY = 'liank_client_id'
 
 /** 浏览器首次访问时创建，并在后续请求中保持同一个 client_id。 */
@@ -15,7 +15,8 @@ export function getClientId(): string {
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
-    headers: { 'Content-Type': 'application/json', ...options.headers },
+    credentials: 'include',
+    headers: { ...(options.body ? { 'Content-Type': 'application/json' } : {}), ...options.headers },
   })
   if (!response.ok) {
     let message = `请求失败（${response.status}）`
@@ -41,14 +42,20 @@ interface CreatedSpace { id: string; topic: string; status: 'created' | 'analyzi
 export async function createLearningSpace(input: LearningSpaceInput) {
   const response = await request<ApiEnvelope<CreatedSpace>>('/api/spaces', {
     method: 'POST',
-    body: JSON.stringify({ ...input, client_id: getClientId(), daily_minutes: input.dailyMinutes }),
+    body: JSON.stringify({
+      client_id: getClientId(),
+      topic: input.topic,
+      level: input.level,
+      goal: input.goal,
+      daily_minutes: input.dailyMinutes,
+    }),
   })
   return response.data
 }
 
 /** 2. 生成 AI 分析。后端要求 client_id 放在 JSON body 中。 */
 export async function analyzeLearningSpace(spaceId: string) {
-  const response = await request<ApiEnvelope<{ space: CreatedSpace; sources: unknown[]; analysis: Analysis }>>(`/api/spaces/${spaceId}/analyze`, {
+  const response = await request<ApiEnvelope<CompleteLearningSpace>>(`/api/spaces/${spaceId}/analyze`, {
     method: 'POST',
     body: JSON.stringify({ client_id: getClientId(), force: false }),
   })
@@ -57,13 +64,13 @@ export async function analyzeLearningSpace(spaceId: string) {
 
 /** 3. 读取完整结果 */
 export async function getLearningSpace(spaceId: string) {
-  const response = await request<ApiEnvelope<{ space: CreatedSpace; sources: unknown[]; analysis?: Analysis; plan?: unknown; quizzes?: unknown[] }>>(`/api/spaces/${spaceId}?client_id=${encodeURIComponent(getClientId())}`)
+  const response = await request<ApiEnvelope<CompleteLearningSpace>>(`/api/spaces/${spaceId}?client_id=${encodeURIComponent(getClientId())}`)
   return response.data
 }
 
 /** 4. 生成学习计划。后端要求 client_id 放在 JSON body 中。 */
 export async function createStudyPlan(spaceId: string) {
-  const response = await request<ApiEnvelope<unknown>>(`/api/spaces/${spaceId}/plan`, {
+  const response = await request<ApiEnvelope<StudyPlan>>(`/api/spaces/${spaceId}/plan`, {
     method: 'POST',
     body: JSON.stringify({ client_id: getClientId(), force: false }),
   })
@@ -72,7 +79,7 @@ export async function createStudyPlan(spaceId: string) {
 
 /** 5. 生成测验。后端要求 client_id 放在 JSON body 中。 */
 export async function createQuiz(spaceId: string, conceptId?: string) {
-  const response = await request<ApiEnvelope<{ id?: string; question?: string; concept_id?: string }>>(`/api/spaces/${spaceId}/quizzes`, {
+  const response = await request<ApiEnvelope<Quiz>>(`/api/spaces/${spaceId}/quizzes`, {
     method: 'POST',
     body: JSON.stringify({ client_id: getClientId(), concept_id: conceptId ?? null }),
   })
@@ -81,7 +88,7 @@ export async function createQuiz(spaceId: string, conceptId?: string) {
 
 /** 6. 提交答案并评分。 */
 export async function submitQuizAttempt(quizId: string, answer: string) {
-  const response = await request<ApiEnvelope<unknown>>(`/api/quizzes/${quizId}/attempts`, {
+  const response = await request<ApiEnvelope<Grade>>(`/api/quizzes/${quizId}/attempts`, {
     method: 'POST',
     body: JSON.stringify({ client_id: getClientId(), answer }),
   })

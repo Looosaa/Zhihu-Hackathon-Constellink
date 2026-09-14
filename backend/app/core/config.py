@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     content_provider: str = "demo"
     zhihu_access_secret: str = ""
     zhihu_api_base_url: str = "https://developer.zhihu.com/api/v1"
+    zhihu_oauth_app_id: str = "618"
+    zhihu_oauth_app_key: str = ""
+    zhihu_oauth_redirect_uri: str = ""
+    oauth_cookie_secure: bool = True
 
     max_sources: int = Field(default=12, ge=3, le=20)
     max_source_chars: int = Field(default=1200, ge=300, le=5000)
@@ -66,4 +70,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-
