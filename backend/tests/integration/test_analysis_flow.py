@@ -30,11 +30,18 @@ def test_complete_offline_learning_flow():
             f"/api/spaces/{space_id}/analyze",
             json={"client_id": CLIENT_ID, "force": False},
         )
-        assert analyzed.status_code == 200, analyzed.text
+        assert analyzed.status_code == 202, analyzed.text
         body = analyzed.json()
-        assert len(body["data"]["sources"]) >= 8
-        assert len(body["data"]["analysis"]["concepts"]) >= 8
-        assert body["meta"]["execution_mode"] == "demo"
+        assert body["data"]["space_id"] == space_id
+        assert body["data"]["status"] == "accepted"
+
+        completed = client.get(
+            f"/api/spaces/{space_id}", params={"client_id": CLIENT_ID}
+        )
+        assert completed.status_code == 200, completed.text
+        completed_body = completed.json()
+        assert len(completed_body["data"]["sources"]) >= 8
+        assert len(completed_body["data"]["analysis"]["concepts"]) >= 8
 
         plan = client.post(
             f"/api/spaces/{space_id}/plan",
@@ -67,4 +74,3 @@ def test_complete_offline_learning_flow():
         assert fetched.status_code == 200, fetched.text
         assert fetched.json()["data"]["space"]["status"] == "ready"
         assert fetched.json()["data"]["plan"] is not None
-

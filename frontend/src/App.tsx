@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Bell, BookOpen, ChevronRight, Clock3, Link2, LoaderCircle, MoreHorizontal, Play, Plus, Search, Sparkles, X } from 'lucide-react'
-import { analyzeLearningSpace, createLearningSpace, createQuiz, createStudyPlan, getLearningSpace, submitQuizAttempt } from './api/client'
+import { analyzeLearningSpace, createLearningSpace, createQuiz, createStudyPlan, submitQuizAttempt, waitForLearningSpace } from './api/client'
 import { KnowledgeGraph } from './components/KnowledgeGraph'
 import { ZhihuAccount } from './components/ZhihuAccount'
 import type { CompleteLearningSpace, Grade, LearningGoal, LearnerLevel, Quiz } from './types'
@@ -63,7 +63,7 @@ function App() {
       setState('analyzing')
       await analyzeLearningSpace(space.id)
       setState('loading')
-      setResult(await getLearningSpace(space.id))
+      setResult(await waitForLearningSpace(space.id))
       setState('success')
       setComposer(false)
     } catch (reason) {

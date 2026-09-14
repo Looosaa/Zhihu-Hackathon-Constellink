@@ -34,6 +34,11 @@ class AnalyzeSpaceRequest(BaseModel):
     force: bool = False
 
 
+class AnalysisAcceptedData(BaseModel):
+    space_id: UUID
+    status: str = "accepted"
+
+
 class OwnedSpaceRequest(BaseModel):
     client_id: str = Field(min_length=16, max_length=128)
     force: bool = False
@@ -69,6 +74,11 @@ class SpaceResponse(BaseModel):
 
 class AnalysisResponse(BaseModel):
     data: AnalysisData
+    meta: ResponseMeta
+
+
+class AnalysisAcceptedResponse(BaseModel):
+    data: AnalysisAcceptedData
     meta: ResponseMeta
 
 

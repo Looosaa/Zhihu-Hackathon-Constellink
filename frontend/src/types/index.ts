@@ -15,6 +15,7 @@ export interface LearningSpace {
   goal?: LearningGoal
   daily_minutes?: number
   status: 'created' | 'analyzing' | 'ready' | 'failed'
+  error_message?: string | null
 }
 
 export interface Source {

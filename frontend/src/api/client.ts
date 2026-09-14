@@ -55,11 +55,40 @@ export async function createLearningSpace(input: LearningSpaceInput) {
 
 /** 2. 生成 AI 分析。后端要求 client_id 放在 JSON body 中。 */
 export async function analyzeLearningSpace(spaceId: string) {
-  const response = await request<ApiEnvelope<CompleteLearningSpace>>(`/api/spaces/${spaceId}/analyze`, {
+  const response = await request<ApiEnvelope<{ space_id: string; status: 'accepted' }>>(`/api/spaces/${spaceId}/analyze`, {
     method: 'POST',
     body: JSON.stringify({ client_id: getClientId(), force: false }),
   })
   return response.data
+}
+
+/** 轮询后台分析，避开 CloudBase 单次 HTTP 请求 60 秒的硬限制。 */
+export async function waitForLearningSpace(
+  spaceId: string,
+  options: { timeoutMs?: number; intervalMs?: number } = {},
+) {
+  const timeoutMs = options.timeoutMs ?? 4 * 60 * 1000
+  const intervalMs = options.intervalMs ?? 2000
+  const deadline = Date.now() + timeoutMs
+  let lastNetworkError: unknown = null
+
+  while (Date.now() < deadline) {
+    let result: CompleteLearningSpace | null = null
+    try {
+      result = await getLearningSpace(spaceId)
+      lastNetworkError = null
+    } catch (reason) {
+      lastNetworkError = reason
+    }
+    if (result?.space.status === 'ready' && result.analysis) return result
+    if (result?.space.status === 'failed') {
+      throw new Error(result.space.error_message || 'AI 分析失败，请重新尝试。')
+    }
+    await new Promise(resolve => window.setTimeout(resolve, intervalMs))
+  }
+
+  if (lastNetworkError instanceof Error) throw lastNetworkError
+  throw new Error('AI 分析仍在进行，请稍后重试。')
 }
 
 /** 3. 读取完整结果 */

@@ -1,6 +1,8 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request, status
+import logging
+
+from fastapi import APIRouter, BackgroundTasks, Depends, Query, Request, status
 
 from app.api.dependencies import (
     get_analysis_orchestrator,
@@ -10,7 +12,7 @@ from app.api.dependencies import (
 from app.domain.entities import CreateSpaceCommand
 from app.schemas.common import ResponseMeta
 from app.schemas.spaces import (
-    AnalysisResponse,
+    AnalysisAcceptedResponse,
     AnalyzeSpaceRequest,
     CompleteSpaceResponse,
     CreateSpaceRequest,
@@ -23,6 +25,7 @@ from app.services.plan_service import PlanService
 from app.services.space_service import SpaceService
 
 router = APIRouter(prefix="/api/spaces", tags=["spaces"])
+logger = logging.getLogger("zhijing.analysis.background")
 
 
 def _meta(request: Request, execution_mode=None) -> ResponseMeta:
@@ -55,23 +58,43 @@ async def get_space(
     return CompleteSpaceResponse(data=result, meta=_meta(request))
 
 
-@router.post("/{space_id}/analyze", response_model=AnalysisResponse)
+async def _run_analysis_background(
+    *,
+    service: AnalysisOrchestrator,
+    space_id: UUID,
+    client_id: str,
+    force: bool,
+) -> None:
+    try:
+        await service.run(space_id=space_id, client_id=client_id, force=force)
+    except Exception:
+        # The orchestrator has already persisted the safe failure state. Logging
+        # here keeps the background exception visible without breaking the 202.
+        logger.exception("background_analysis_failed", extra={"space_id": str(space_id)})
+
+
+@router.post(
+    "/{space_id}/analyze",
+    response_model=AnalysisAcceptedResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
 async def analyze_space(
     space_id: UUID,
     payload: AnalyzeSpaceRequest,
     request: Request,
+    background_tasks: BackgroundTasks,
     service: AnalysisOrchestrator = Depends(get_analysis_orchestrator),
-) -> AnalysisResponse:
-    bundle = await service.run(
-        space_id=space_id, client_id=payload.client_id, force=payload.force
+) -> AnalysisAcceptedResponse:
+    background_tasks.add_task(
+        _run_analysis_background,
+        service=service,
+        space_id=space_id,
+        client_id=payload.client_id,
+        force=payload.force,
     )
-    return AnalysisResponse(
-        data={
-            "space": bundle.space,
-            "sources": bundle.sources,
-            "analysis": bundle.analysis,
-        },
-        meta=_meta(request, bundle.execution_mode),
+    return AnalysisAcceptedResponse(
+        data={"space_id": space_id, "status": "accepted"},
+        meta=_meta(request),
     )
 
 
@@ -86,4 +109,3 @@ async def generate_plan(
         space_id=space_id, client_id=payload.client_id, force=payload.force
     )
     return PlanResponse(data=plan, meta=_meta(request))
-
