@@ -74,7 +74,9 @@ class AnalysisOrchestrator:
             sources = self.preprocessor.prepare(
                 raw_sources,
                 max_items=self.settings.max_sources,
-                max_chars=self.settings.max_source_chars,
+                # Keep real-time analysis responsive even when an older cloud
+                # environment still has the previous 1200-character setting.
+                max_chars=min(self.settings.max_source_chars, 800),
             )
             if len(sources) < 3:
                 raise ContentUnavailableError()
