@@ -1,6 +1,4 @@
-import asyncio
 import json
-import logging
 from pathlib import Path
 from uuid import UUID
 
@@ -11,13 +9,16 @@ from app.core.errors import (
     SpaceNotFoundError,
     safe_message_for,
 )
-from app.domain.analysis_models import AnalysisBundle, AnalysisResult, SourceViewpoint
+from app.domain.analysis_models import (
+    AnalysisBundle,
+    AnalysisResult,
+    SourceViewpoint,
+    SourceViewpointBatch,
+)
 from app.domain.enums import ExecutionMode, SourceProvider, SpaceStatus
 from app.domain.ports import ContentProviderPort, LearningRepositoryPort, LLMPort
 from app.services.prompt_loader import PromptLoader
 from app.services.source_preprocessor import SourcePreprocessor
-
-logger = logging.getLogger("zhijing.analysis")
 
 
 class AnalysisOrchestrator:
@@ -116,39 +117,36 @@ class AnalysisOrchestrator:
             raise
 
     async def _extract_all(self, topic: str, sources) -> list[SourceViewpoint]:
-        semaphore = asyncio.Semaphore(self.settings.extract_concurrency)
-
-        async def extract_one(source):
-            async with semaphore:
-                prompt = self.prompt_loader.render(
-                    "extract_viewpoint",
-                    topic=topic,
-                    source_key=source.source_key,
-                    title=source.title,
-                    author_name=source.author_name,
-                    excerpt=source.excerpt,
-                )
-                return await self.llm.generate_structured(
-                    task_name="extract_viewpoint",
-                    system_prompt="你是严谨的学习内容分析员。",
-                    user_prompt=prompt,
-                    response_model=SourceViewpoint,
-                )
-
-        results = await asyncio.gather(
-            *(extract_one(source) for source in sources), return_exceptions=True
+        sources_json = json.dumps(
+            [
+                {
+                    "source_key": source.source_key,
+                    "title": source.title,
+                    "author_name": source.author_name,
+                    "excerpt": source.excerpt,
+                }
+                for source in sources
+            ],
+            ensure_ascii=False,
         )
-        viewpoints: list[SourceViewpoint] = []
-        failed = 0
-        for result in results:
-            if isinstance(result, SourceViewpoint):
-                viewpoints.append(result)
-            else:
-                failed += 1
-                logger.warning("source_extraction_failed", exc_info=result)
-        if failed:
-            logger.info("source_extraction_partial", extra={"failed_count": failed})
-        return viewpoints
+        prompt = self.prompt_loader.render(
+            "extract_viewpoints_batch",
+            topic=topic,
+            sources_json=sources_json,
+        )
+        batch = await self.llm.generate_structured(
+            task_name="extract_viewpoints_batch",
+            system_prompt="你是严谨的学习内容分析员。",
+            user_prompt=prompt,
+            response_model=SourceViewpointBatch,
+        )
+
+        valid_keys = {source.source_key for source in sources}
+        unique: dict[str, SourceViewpoint] = {}
+        for viewpoint in batch.items:
+            if viewpoint.source_key in valid_keys:
+                unique.setdefault(viewpoint.source_key, viewpoint)
+        return list(unique.values())
 
     async def _synthesize(self, space, viewpoints) -> AnalysisResult:
         prompt = self.prompt_loader.render(

@@ -2,8 +2,18 @@ from fastapi.testclient import TestClient
 
 from app.core.config import Settings
 from app.main import create_app
+from app.providers.llm.fake import FakeLLM
 
 CLIENT_ID = "test-browser-1234567890"
+
+
+class CountingFakeLLM(FakeLLM):
+    def __init__(self):
+        self.tasks: list[str] = []
+
+    async def generate_structured(self, **kwargs):
+        self.tasks.append(kwargs["task_name"])
+        return await super().generate_structured(**kwargs)
 
 
 def test_complete_offline_learning_flow():
@@ -12,7 +22,14 @@ def test_complete_offline_learning_flow():
         content_provider="demo",
         llm_backend="fake",
     )
-    with TestClient(create_app(settings)) as client:
+    app = create_app(settings)
+    counting_llm = CountingFakeLLM()
+    app.state.container.llm = counting_llm
+    app.state.container.analysis_orchestrator.llm = counting_llm
+    app.state.container.plan_service.llm = counting_llm
+    app.state.container.quiz_service.llm = counting_llm
+
+    with TestClient(app) as client:
         created = client.post(
             "/api/spaces",
             json={
@@ -42,6 +59,7 @@ def test_complete_offline_learning_flow():
         completed_body = completed.json()
         assert len(completed_body["data"]["sources"]) >= 8
         assert len(completed_body["data"]["analysis"]["concepts"]) >= 8
+        assert counting_llm.tasks == ["extract_viewpoints_batch", "synthesize"]
 
         plan = client.post(
             f"/api/spaces/{space_id}/plan",

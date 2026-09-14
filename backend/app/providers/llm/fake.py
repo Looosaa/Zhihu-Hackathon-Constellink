@@ -31,25 +31,30 @@ class FakeLLM:
             key=lambda item: int(item[1:]),
         )
         keys = keys or ["S1", "S2", "S3"]
-        if task_name == "extract_viewpoint":
-            source_key = keys[0]
-            return {
-                "source_key": source_key,
-                "relevance_score": 0.9,
-                "position_summary": "先形成实践闭环，再按遇到的问题补充理论。",
-                "claims": [
-                    {
-                        "text": "实践和理论应交替进行",
-                        "evidence": "来源强调通过小项目获得反馈，并按需补足知识。",
-                        "confidence": 0.85,
-                    }
-                ],
-                "concepts": [
-                    {"name": "项目实践", "definition": "用小任务验证所学知识。"}
-                ],
-                "suitable_for": ["零基础学习者", "以项目为目标的人"],
-                "limitations": ["研究型目标仍需要更系统的数学训练"],
-            }
+        if task_name in {"extract_viewpoint", "extract_viewpoints_batch"}:
+
+            def viewpoint(source_key: str) -> dict:
+                return {
+                    "source_key": source_key,
+                    "relevance_score": 0.9,
+                    "position_summary": "先形成实践闭环，再按遇到的问题补充理论。",
+                    "claims": [
+                        {
+                            "text": "实践和理论应交替进行",
+                            "evidence": "来源强调通过小项目获得反馈，并按需补足知识。",
+                            "confidence": 0.85,
+                        }
+                    ],
+                    "concepts": [
+                        {"name": "项目实践", "definition": "用小任务验证所学知识。"}
+                    ],
+                    "suitable_for": ["零基础学习者", "以项目为目标的人"],
+                    "limitations": ["研究型目标仍需要更系统的数学训练"],
+                }
+
+            if task_name == "extract_viewpoints_batch":
+                return {"items": [viewpoint(key) for key in keys]}
+            return viewpoint(keys[0])
         if task_name == "synthesize":
             return {
                 "overview": "多数观点认可实践与基础并行，但在数学学习的先后顺序上存在分歧。",

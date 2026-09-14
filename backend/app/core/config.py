@@ -34,8 +34,8 @@ class Settings(BaseSettings):
     zhihu_oauth_allow_missing_state: bool = False
     oauth_cookie_secure: bool = True
 
-    max_sources: int = Field(default=12, ge=3, le=20)
-    max_source_chars: int = Field(default=1200, ge=300, le=5000)
+    max_sources: int = Field(default=8, ge=3, le=20)
+    max_source_chars: int = Field(default=800, ge=300, le=5000)
     extract_concurrency: int = Field(default=4, ge=1, le=8)
     use_precomputed_demo: bool = False
     prompt_version: str = "v1"
